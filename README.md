@@ -3,7 +3,7 @@
 **Jedna komenda: nick salonu beauty z Instagrama → gotowa, animowana strona firmy.**
 Python · agenci LLM (Claude, GPT, Gemini) · modele wizyjne · Playwright · OpenCV · GSAP + ScrollTrigger + Lenis
 
-Generator jest częścią mojego systemu sprzedaży stron dla branży beauty. Każdy salon, który odpisał na wiadomość, dostawał w ofercie **gotową stronę swojej firmy**, zrobioną automatycznie z jego profilu Instagram, zanim cokolwiek zapłacił. Klient od razu widział efekt, więc to właśnie strona najmocniej przekonywała do zakupu. Cały lejek dał **ok. 30 klientów w 3 miesiące**.
+Generator jest częścią mojego systemu sprzedaży stron dla branży beauty. Gdy salon odpisał na pierwszą wiadomość, generator od razu budował **gotową stronę jego firmy** z profilu Instagram, a kolejną wiadomością była oferta z linkiem do tej strony, zanim salon cokolwiek zapłacił. Klient od razu widział efekt, więc to właśnie strona najmocniej przekonywała do zakupu. Cały lejek dał **ok. 30 klientów w 3 miesiące**.
 
 ## Przykłady na żywo
 
