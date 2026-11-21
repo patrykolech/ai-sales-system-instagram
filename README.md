@@ -32,8 +32,8 @@ flowchart LR
 1. **Leady**: profile firm z Google (dorki), scraping profili Instagram w wybranych miastach i salony z Booksy. LLM odsiewa profile, które nie są firmą albo nie pasują do branży.
 2. **Pierwsza wiadomość** idzie z jednego z kont, z wariantem treści dobranym do konta (inne teksty piszą konta kobiece, inne męskie), w seriach rozłożonych na cały dzień.
 3. **Agent skrzynki** regularnie przegląda rozmowy, a **analityk** ocenia intencję odpowiedzi: zainteresowanie, pytanie, odmowa, komunikat systemowy Instagrama.
-4. Dla zainteresowanych **generator** buduje animowaną stronę salonu z jego zdjęć i danych ([opis generatora](https://github.com/patrykolech/beauty-site-generator)).
-5. **Oferta** z linkiem do gotowej strony i ceną zależną od wielkości profilu.
+4. Gdy salon odpisze na pierwszą wiadomość, **generator** od razu buduje animowaną stronę salonu z jego zdjęć i danych ([opis generatora](https://github.com/patrykolech/beauty-site-generator)).
+5. **Oferta**: kolejna wiadomość to oferta z linkiem do tej gotowej strony i ceną zależną od wielkości profilu.
 6. **Telegram**: dostaję powiadomienie o zainteresowanym kliencie, odpisuję sam, a potem bot kontynuuje rozmowę zaplanowanymi wiadomościami i przypomnieniami.
 
 ## Architektura
