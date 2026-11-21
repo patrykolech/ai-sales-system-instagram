@@ -1,0 +1,22 @@
+<!-- ============ Z BLISKA: pozioma wstega wszystkich prac z numerami i lightboxem. Bez JS natywne przewijanie w poziomie,
+     linki prowadza do pliku zdjecia. Desktop z JS: pin + scrub w poziomie; dotyk: natywny poziomy scroll ============ -->
+<section class="wstega {{PW}} faktura" id="z-bliska" data-nav="{{NAV}}" data-sekcja="z-bliska" data-scene="wstega"{{PRZ_ATR}} aria-labelledby="wstega-h2">
+{{PRZEJSCIE}}
+ <div class="wstega-scena" data-anim="wstega-scena">
+  <div class="wstega-glowa">
+   <h2 id="wstega-h2" class="h2-duzy" data-split>Z bliska</h2>
+   <div class="wstega-ster">
+    <p class="wstega-licznik" aria-hidden="true"><span data-licznik>01</span> / {{N2}}</p>
+    <button type="button" class="ster" data-wstecz>Poprzednie</button>
+    <button type="button" class="ster" data-dalej>Następne</button>
+    <a class="pomin-scene" href="#{{PO_WSTEDZE}}">Pomiń galerię{{STRZALKA}}</a>
+   </div>
+  </div>
+  <div class="wstega-okno" data-anim="wstega-okno">
+   <ol class="wstega-tor" data-anim="wstega-tor" aria-label="Prace z profilu @{{NICK}}">
+{{PRACE}}
+   </ol>
+  </div>
+  <div class="wstega-miernik" aria-hidden="true"><span data-miernik></span></div>
+ </div>
+</section>

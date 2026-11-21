@@ -1,0 +1,45 @@
+{
+  "promien_otworu": 0.8805,
+  "srodek_otworu": [
+    0.498,
+    0.5085
+  ],
+  "promien_lakieru": 0.945,
+  "zawias_szer": 0.2529,
+  "zawias_wys": 0.0538,
+  "zawias_zamkniety": {
+    "szer": 0.2263,
+    "wys": 0.0479,
+    "nachodzi": 0.0131
+  },
+  "wklady": {
+    "puder": {
+      "srodek": [
+        0.5063,
+        0.5089
+      ],
+      "promien": 0.8804
+    },
+    "brwi": {
+      "srodek": [
+        0.4946,
+        0.506
+      ],
+      "promien": 0.8729
+    },
+    "rzesy": {
+      "srodek": [
+        0.4909,
+        0.508
+      ],
+      "promien": 0.8825
+    },
+    "paznokcie": {
+      "srodek": [
+        0.4906,
+        0.5091
+      ],
+      "promien": 0.8846
+    }
+  }
+}

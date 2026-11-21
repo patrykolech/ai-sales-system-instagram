@@ -1,0 +1,17 @@
+<!-- ============ WIECEJ NA @NICK: karty jak posty z Instagrama (awatar, nick, zdjecie, fragment podpisu, gdy czysty), ostatnie posty
+     po filtrach jakosci. Telefon i tablet: natywne przewijanie w poziomie ze snapem; desktop: siatka. Bez embed.js ============ -->
+<section class="wiecej {{PW}} faktura" id="instagram" data-nav="{{NAV}}" data-sekcja="instagram" data-scene="wiecej"{{PRZ_ATR}} aria-labelledby="wiecej-h2">
+{{PRZEJSCIE}}
+ <div class="wiecej-wew">
+  <header class="wiecej-glowa sek-glowa">
+   {{NR}}
+   <h2 id="wiecej-h2" class="h2-duzy" data-split>Więcej na <span class="wiecej-nick">@{{NICK_WBR}}</span></h2>
+   <a class="przycisk wiecej-link" href="{{IG_URL}}">Zobacz profil na&nbsp;Instagramie</a>
+  </header>
+ </div>
+ <div class="posty-okno" data-anim="posty-okno">
+  <ul class="posty posty--{{N}}" aria-label="Ostatnie posty z profilu @{{NICK}}">
+{{POSTY}}
+  </ul>
+ </div>
+</section>

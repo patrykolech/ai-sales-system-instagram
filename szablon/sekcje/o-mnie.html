@@ -1,0 +1,20 @@
+<!-- ============ O MNIE / O NAS: tekst z faktow (o_mnie.py), kolaz trzech zdjec w roznych formach (prostokat, owal, kolo) wprost
+     na powierzchni sekcji. Kurtyny (tylko przy ruchu, poza Instagramem) rozsuwaja sie nad kolazem; podpis literami, gdy imie w danych ============ -->
+<section class="o-mnie {{PW}} faktura" id="o-mnie" data-nav="{{NAV}}" data-sekcja="o-mnie" data-scene="o-mnie"{{PRZ_ATR}} aria-labelledby="o-mnie-h2">
+{{PRZEJSCIE}}
+{{PRZERYWNIK}}
+ <div class="o-mnie-wew">
+  <div class="o-mnie-plansza o-mnie-plansza--{{N}}" data-anim="plansza">
+{{KOLAZ}}
+   <span class="kurtyna kurtyna--l faktura" aria-hidden="true"></span>
+   <span class="kurtyna kurtyna--p faktura" aria-hidden="true"></span>
+  </div>
+  <div class="o-mnie-tekst">
+   <header class="sek-glowa">
+    {{NR}}
+    <h2 id="o-mnie-h2" class="h2-duzy" data-split>{{H2}}</h2>
+   </header>
+{{TEKST}}
+  </div>
+ </div>
+</section>
