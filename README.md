@@ -12,7 +12,7 @@ System sam znajduje salony beauty na Instagramie, pisze do nich, rozpoznaje zain
 | Wysłane pierwsze wiadomości | **5 142** |
 | Odpowiedzi | **2 671 (52%)** |
 | Wysłane oferty z gotową stroną | **ok. 2 600** |
-| Klienci | **ok. 30 w 3 miesiące**, bez handlowca |
+| Klienci | **ok. 30 w 2 miesiące**, bez handlowca |
 | Konta Instagram pracujące równolegle | **do 15** |
 
 ## Lejek
