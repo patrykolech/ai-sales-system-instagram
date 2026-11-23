@@ -14,7 +14,7 @@ Jeden system robi całą sprzedaż: znajduje salony beauty na Instagramie, pisze
 | Wysłane pierwsze wiadomości | **5 142** |
 | Odpowiedzi | **2 671 (52%)** |
 | Wysłane oferty ze stroną demo | **ok. 2 600** |
-| Klienci | **ok. 30 w 2 miesiące**, bez handlowca |
+| Salony, które kupiły stronę www | **ok. 30 w 2 miesiące**, bez handlowca |
 | Konta Instagram pracujące równolegle | **do 15** |
 | Koszt AI jednej strony demo | **ok. 10-15 gr** (zależnie od szablonu i modeli agentów) |
 
