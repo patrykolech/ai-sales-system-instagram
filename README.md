@@ -185,7 +185,7 @@ Rzeczy, których jeszcze nie ma, a które są następnym krokiem:
 
 ## Moja rola
 
-Całość zaprojektowałem i zbudowałem sam, z pomocą asystentów AI (Claude Code): lejek, architekturę agentów, zarządzanie kontami, generator stron, wdrożenie na serwer i codzienną obsługę sprzedaży.
+Całość zaprojektowałem i zbudowałem sam: lejek, architekturę agentów, zarządzanie kontami, generator stron, wdrożenie na serwer i codzienną obsługę sprzedaży.
 
 ---
 

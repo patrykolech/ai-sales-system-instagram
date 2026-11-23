@@ -93,7 +93,6 @@ Dane profili pochodzą z mojego scrapera Instagrama i nie są częścią repozyt
 
 - Repozytorium nie zawiera zdjęć, logo ani danych klientek. Nazwy w przykładach są zmienione.
 - Fonty na licencji SIL OFL, biblioteki GSAP i Lenis zgodnie z ich licencjami.
-- Kod powstał z pomocą asystentów AI (Claude Code). Architektura, zasady pracy agentów, kontrola jakości i testy na prawdziwych klientkach są moje.
 
 ---
 
