@@ -1,11 +1,11 @@
 # Instagram AI: autonomiczny system sprzedaży stron www dla branży beauty
 
-> **TL;DR (EN):** Autonomous multi-agent sales system for beauty salons on Instagram: lead sourcing (Google dorks, scraping, Booksy) and enrichment in Clay, outreach from up to 15 accounts, an AI-generated animated website for every reply, offers and follow-ups handled autonomously with a human in the loop via Telegram. Result: 52% reply rate, ~30 clients in 2 months. The website generator code is in [`/generator`](generator/).
+> **TL;DR (EN):** Autonomous multi-agent sales system for beauty salons on Instagram: lead sourcing (Google dorks, scraping, Booksy) and enrichment in Clay, outreach from up to 15 accounts, an AI-generated animated demo website for every reply (shows the salon what I can build before they pay), offers and follow-ups handled autonomously with a human in the loop via Telegram. Result: 52% reply rate, ~30 clients in 2 months. The website generator code is in [`/generator`](generator/).
 
 **Projekt komercyjny. Kod jest prywatny, tutaj opisuję architekturę, orkiestrację i wyniki.**
 Python · asyncio · Playwright · browser-use · MCP · system wieloagentowy · LLM (Claude, GPT, Gemini) · modele vision · SQLite (WAL) · Clay · Telegram Bot API · GSAP · VPS
 
-Jeden system robi całą sprzedaż: znajduje salony beauty na Instagramie, pisze do nich z wielu kont, czyta odpowiedzi, **dla każdego, kto odpisze, generuje animowaną stronę jego salonu** i wysyła ofertę z linkiem do tej strony. Typowe odpowiedzi obsługuje sam, a ja wchodzę do rozmowy jednym przyciskiem w Telegramie, gdy klient jest blisko zakupu.
+Jeden system robi całą sprzedaż: znajduje salony beauty na Instagramie, pisze do nich z wielu kont, czyta odpowiedzi, **dla każdego, kto odpisze, generuje animowaną stronę demo jego salonu** i wysyła ofertę z linkiem do tej strony. Typowe odpowiedzi obsługuje sam, a ja wchodzę do rozmowy jednym przyciskiem w Telegramie, gdy klient jest blisko zakupu.
 
 ## Wynik
 
@@ -13,7 +13,7 @@ Jeden system robi całą sprzedaż: znajduje salony beauty na Instagramie, pisze
 |---|---|
 | Wysłane pierwsze wiadomości | **5 142** |
 | Odpowiedzi | **2 671 (52%)** |
-| Wysłane oferty z gotową stroną | **ok. 2 600** |
+| Wysłane oferty ze stroną demo | **ok. 2 600** |
 | Klienci | **ok. 30 w 2 miesiące**, bez handlowca |
 | Konta Instagram pracujące równolegle | **do 15** |
 | Koszt AI jednej strony | **poniżej 1 zł** |
@@ -29,13 +29,13 @@ flowchart TD
     D --> E{"Odpowiedź?"}
     E -- nie --> F["Rozmowa wygasa<br/>bez spamowania"]
     E -- tak --> G["<b>5. Analityk</b><br/>intencja odpowiedzi"]
-    G --> H["<b>6. Generator strony</b><br/>agenci AI: zdjęcia, logo, paleta,<br/>teksty, QA na zrzutach z telefonu"]
-    H --> I["<b>7. Oferta</b><br/>link do gotowej strony + cena"]
+    G --> H["<b>6. Generator strony demo</b><br/>agenci AI: zdjęcia, logo, paleta,<br/>teksty, QA na zrzutach z telefonu"]
+    H --> I["<b>7. Oferta</b><br/>link do strony demo + cena"]
     I --> J{"Odpowiedź<br/>na ofertę?"}
     J -- "typowa" --> K["<b>8. Autonomiczna odpowiedź</b><br/>wzorowana na podobnych rozmowach"]
     J -- "zakup / niejasna" --> L["<b>9. Telegram</b><br/>propozycja odpowiedzi + przyciski"]
     K --> J
-    L --> M["<b>Klientka</b><br/>płatność, wdrożenie na domenę"]
+    L --> M["<b>Klientka</b><br/>płatność, docelowa strona na domenie"]
     L -- "za 3 dni / w terminie" --> N["Przypomnienie<br/>w wybranym dniu"]
     N --> L
 
@@ -91,13 +91,14 @@ Leady ze wszystkich źródeł trafiają do jednej tabeli w Clay (import przez we
 
 ### 5. Generator strony
 
-- **Każdy, kto odpisze na pierwszą wiadomość**, uruchamia budowę strony. Gdy strona jest gotowa, kolejną wiadomością jest oferta z linkiem do niej.
+- **Każdy, kto odpisze na pierwszą wiadomość**, uruchamia budowę **strony demo**: przykładowej, animowanej strony zrobionej z jego zdjęć, nazwy i usług. Nie jest to gotowy produkt, tylko pokaz, co mogę dla salonu zrobić, zanim zapłaci. Gdy demo jest gotowe, kolejną wiadomością jest oferta z linkiem do niego.
+- Docelową stronę przygotowuję po zakupie, w uzgodnionym z klientką stylu, na jej domenie.
 - Agenci generatora: weryfikator danych (nazwa, miasto, usługa), dobór zdjęć modelem vision, odtworzenie albo wygenerowanie logo, art director (paleta z 11 rodzin), copywriter, QA na zrzutach z telefonu. Strona jest publikowana na domenie z SSL.
 - Generator działa też samodzielnie, z panelu. Jego kod jest w folderze [`generator/`](generator/), przykład: [examplewebsite.pl/zaczarowanerzesypoznan](https://examplewebsite.pl/zaczarowanerzesypoznan/).
 
 ### 6. Oferta
 
-- Sekwencja kilku krótkich wiadomości: nawiązanie, link do gotowej strony, cena, pytanie zamykające.
+- Sekwencja kilku krótkich wiadomości: nawiązanie, link do strony demo z dopiskiem, że to przykład tego, co mogę zrobić, cena docelowej strony, pytanie zamykające.
 - **Cena zależna od wielkości profilu** (progi według liczby obserwujących).
 - **Testy A/B**: treść otwarcia, ceny, wariant ze zrzutem strony i bez, z podziałem na grupy od ustalonej daty.
 
