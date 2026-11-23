@@ -48,7 +48,7 @@ Całość uruchamia [`generuj.py`](generuj.py), a agentów obsługuje [`agenci.p
 - **Agent nie może dopisać faktu spoza danych.** Każdą odpowiedź modelu sprawdza kod: nazwa, miasto czy usługa przechodzą tylko wtedy, gdy potwierdzają je dane z profilu. Dzięki temu strona nie wymyśla adresu ani usług, których salon nie robi.
 - **Modele zapasowe.** Każda rola ma łańcuch modeli (np. Claude Sonnet, a w razie błędu GPT). Brak środków czy awaria jednego dostawcy nie zatrzymuje generatora.
 - **Pamięć odpowiedzi.** Wyniki agentów są zapisywane, więc drugie uruchomienie dla tej samej klientki prawie nic nie kosztuje.
-- **Koszt AI poniżej 1 zł za stronę**, liczony na bieżąco z liczników zużycia API.
+- **Koszt AI ok. 10-15 gr za stronę demo**, zależnie od wybranego szablonu i modeli przypisanych do agentów; liczony na bieżąco z liczników zużycia API.
 - **Generator, a nie ręczne składanie.** Szablon działa dla całej branży beauty (rzęsy, brwi, PMU, paznokcie, makijaż), a sceny i zdjęcia zmieniają się pod typ usługi.
 
 ## Animacje i wydajność

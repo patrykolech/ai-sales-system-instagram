@@ -16,7 +16,7 @@ Jeden system robi całą sprzedaż: znajduje salony beauty na Instagramie, pisze
 | Wysłane oferty ze stroną demo | **ok. 2 600** |
 | Klienci | **ok. 30 w 2 miesiące**, bez handlowca |
 | Konta Instagram pracujące równolegle | **do 15** |
-| Koszt AI jednej strony | **poniżej 1 zł** |
+| Koszt AI jednej strony demo | **ok. 10-15 gr** (zależnie od szablonu i modeli agentów) |
 
 ## Jak działa całość
 
@@ -33,7 +33,7 @@ flowchart TD
     H --> I["<b>7. Oferta</b><br/>link do strony demo + cena"]
     I --> J{"Odpowiedź<br/>na ofertę?"}
     J -- "typowa" --> K["<b>8. Autonomiczna odpowiedź</b><br/>wzorowana na podobnych rozmowach"]
-    J -- "zakup / niejasna" --> L["<b>9. Telegram</b><br/>propozycja odpowiedzi + przyciski"]
+    J -- "zakup / niejasna" --> L["<b>9. Telegram</b><br/>propozycja odpowiedzi + przyciski,<br/>agent wysyła z właściwego konta"]
     K --> J
     L --> M["<b>Klientka</b><br/>płatność, docelowa strona na domenie"]
     L -- "za 3 dni / w terminie" --> N["Przypomnienie<br/>w wybranym dniu"]
@@ -108,6 +108,7 @@ Leady ze wszystkich źródeł trafiają do jednej tabeli w Clay (import przez we
 - **Pamięć rozmów**: system wyszukuje podobne wcześniejsze rozmowy (przede wszystkim te, w których odpisywałem sam) i na ich wzór przygotowuje odpowiedź w moim stylu (few-shot z historii).
 - **Typowe sytuacje bot obsługuje sam**: pytania o to, jak działa strona, o termin realizacji, prośba o inny styl, „odezwę się później”.
 - **Zakup, negocjacje i niejasne odpowiedzi idą do mnie** na Telegram z gotową propozycją: wysyłam ją jednym przyciskiem albo piszę własną komendą „odpisz @nick …”.
+- **Odpisuję wyłącznie z Telegrama, bez logowania się na konta Instagram.** Po kliknięciu „Wyślij” albo komendzie „odpisz @nick …” zadanie trafia do agenta konta, z którego prowadzona jest rozmowa: agent otwiera profil przeglądarki tego konta, wyszukuje rozmowę z klientką, sprawdza, czy otwarty jest właściwy wątek, wysyła wiadomość i potwierdza wysyłkę na Telegramie. Przy kilkunastu kontach jedna osoba obsługuje całą sprzedaż z telefonu.
 - **Przypomnienia**: lead „nie teraz” jest odkładany do daty wyczytanej z rozmowy, a w tym dniu dostaję przypomnienie z kontekstem. Rozmowy bez odpowiedzi wygasają po cichu, bez dopisywania kolejnych wiadomości.
 
 ### 8. Orkiestracja
