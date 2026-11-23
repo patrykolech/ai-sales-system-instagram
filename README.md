@@ -1,192 +1,191 @@
-# Instagram AI: autonomiczny system sprzedaży stron www dla branży beauty
+# Instagram AI: autonomous sales system for beauty-industry websites
 
-> **TL;DR (EN):** Autonomous multi-agent sales system for beauty salons on Instagram: lead sourcing (Google dorks, scraping, Booksy) and enrichment in Clay, outreach from up to 15 accounts, an AI-generated animated demo website for every reply (shows the salon what I can build before they pay), offers and follow-ups handled autonomously with a human in the loop via Telegram. Result: 52% reply rate, ~30 clients in 2 months. The website generator code is in [`/generator`](generator/).
+**Commercial project. The core system is private; this page describes its architecture, orchestration and results. The website generator code is public in [`/generator`](generator/).**
 
-**Projekt komercyjny. Kod jest prywatny, tutaj opisuję architekturę, orkiestrację i wyniki.**
-Python · asyncio · Playwright · browser-use · MCP · system wieloagentowy · LLM (Claude, GPT, Gemini) · modele vision · SQLite (WAL) · Clay · Telegram Bot API · GSAP · VPS
+Python · asyncio · Playwright · browser-use · MCP · multi-agent system · LLMs (Claude, GPT, Gemini) · vision models · SQLite (WAL) · Clay · Telegram Bot API · GSAP · VPS
 
-Jeden system robi całą sprzedaż: znajduje salony beauty na Instagramie, pisze do nich z wielu kont, czyta odpowiedzi, **dla każdego, kto odpisze, generuje animowaną stronę demo jego salonu** i wysyła ofertę z linkiem do tej strony. Typowe odpowiedzi obsługuje sam, a ja wchodzę do rozmowy jednym przyciskiem w Telegramie, gdy klient jest blisko zakupu.
+One system runs the whole sales process: it finds beauty salons on Instagram, messages them from multiple accounts, reads the replies, **generates an animated demo website for every salon that replies** and sends an offer with a link to it. Typical replies are handled autonomously; I step into a conversation with one tap in Telegram when a client is close to buying.
 
-## Wynik
+## Results
 
 | | |
 |---|---|
-| Wysłane pierwsze wiadomości | **5 142** |
-| Odpowiedzi | **2 671 (52%)** |
-| Wysłane oferty ze stroną demo | **ok. 2 600** |
-| Salony, które kupiły stronę www | **ok. 30 w 2 miesiące**, bez handlowca |
-| Konta Instagram pracujące równolegle | **do 15** |
-| Koszt AI jednej strony demo | **ok. 10-15 gr** (zależnie od szablonu i modeli agentów) |
+| First messages sent | **5,142** |
+| Replies | **2,671 (52%)** |
+| Offers sent with a demo website | **~2,600** |
+| Salons that bought a website | **~30 in 2 months**, no salesperson |
+| Instagram accounts running in parallel | **up to 15** |
+| AI cost of one demo website | **~0.10-0.15 PLN** (depending on the template and the models assigned to the agents) |
 
-## Jak działa całość
+## How it works
 
 ```mermaid
 flowchart TD
-    A["<b>1. Leady</b><br/>Google dorks, scraping IG, Booksy"] --> CL["<b>Clay</b><br/>tabela salonów, wzbogacanie"]
-    CL --> B["<b>2. Kwalifikacja</b><br/>kolumna AI: salon, branża, miasto"]
-    B --> C["<b>3. Przydział do konta</b><br/>limity wg wieku i kondycji konta"]
-    C --> D["<b>4. Pierwsza wiadomość</b><br/>seria w oknie aktywności konta"]
-    D --> E{"Odpowiedź?"}
-    E -- nie --> F["Rozmowa wygasa<br/>bez spamowania"]
-    E -- tak --> G["<b>5. Analityk</b><br/>intencja odpowiedzi"]
-    G --> H["<b>6. Generator strony demo</b><br/>agenci AI: zdjęcia, logo, paleta,<br/>teksty, QA na zrzutach z telefonu"]
-    H --> I["<b>7. Oferta</b><br/>link do strony demo + cena"]
-    I --> J{"Odpowiedź<br/>na ofertę?"}
-    J -- "typowa" --> K["<b>8. Autonomiczna odpowiedź</b><br/>wzorowana na podobnych rozmowach"]
-    J -- "zakup / niejasna" --> L["<b>9. Telegram</b><br/>propozycja odpowiedzi + przyciski,<br/>agent wysyła z właściwego konta"]
+    A["<b>1. Leads</b><br/>Google dorks, IG scraping, Booksy"] --> CL["<b>Clay</b><br/>salon table, enrichment"]
+    CL --> B["<b>2. Qualification</b><br/>AI column: salon, service, city"]
+    B --> C["<b>3. Account assignment</b><br/>limits by account age and health"]
+    C --> D["<b>4. First message</b><br/>batches within the account's active hours"]
+    D --> E{"Reply?"}
+    E -- no --> F["Conversation expires<br/>no spamming"]
+    E -- yes --> G["<b>5. Analyst</b><br/>reply intent"]
+    G --> H["<b>6. Demo website generator</b><br/>AI agents: photos, logo, palette,<br/>copy, QA on phone screenshots"]
+    H --> I["<b>7. Offer</b><br/>link to the demo + price"]
+    I --> J{"Reply<br/>to the offer?"}
+    J -- "typical" --> K["<b>8. Autonomous reply</b><br/>modelled on similar conversations"]
+    J -- "purchase / unclear" --> L["<b>9. Telegram</b><br/>suggested reply + buttons,<br/>agent sends from the right account"]
     K --> J
-    L --> M["<b>Klientka</b><br/>płatność, docelowa strona na domenie"]
-    L -- "za 3 dni / w terminie" --> N["Przypomnienie<br/>w wybranym dniu"]
+    L --> M["<b>Client</b><br/>payment, final website on their domain"]
+    L -- "in 3 days / on a date" --> N["Reminder<br/>on the chosen day"]
     N --> L
 
-    classDef dane fill:#dbeafe,stroke:#3b82f6,color:#0f172a
-    classDef konta fill:#ede9fe,stroke:#8b5cf6,color:#0f172a
+    classDef data fill:#dbeafe,stroke:#3b82f6,color:#0f172a
+    classDef accounts fill:#ede9fe,stroke:#8b5cf6,color:#0f172a
     classDef ai fill:#dcfce7,stroke:#22c55e,color:#0f172a
-    classDef sprzedaz fill:#fef3c7,stroke:#f59e0b,color:#0f172a
-    classDef boczne fill:#f1f5f9,stroke:#94a3b8,color:#0f172a
-    class A,B,CL dane
-    class C,D konta
+    classDef sales fill:#fef3c7,stroke:#f59e0b,color:#0f172a
+    classDef side fill:#f1f5f9,stroke:#94a3b8,color:#0f172a
+    class A,B,CL data
+    class C,D accounts
     class G,H,I,K ai
-    class L,M sprzedaz
-    class F,N boczne
+    class L,M sales
+    class F,N side
 ```
 
-Kolory: niebieski to dane, fioletowy to konta i wysyłka, zielony to agenci AI, żółty to sprzedaż z udziałem człowieka.
+Colours: blue is data, purple is accounts and sending, green is AI agents, yellow is sales with a human in the loop.
 
-### 1. Pozyskiwanie leadów
+### 1. Lead sourcing
 
-- **Google dorks** (np. `site:instagram.com "rzęsy" "Kraków"`) zwracają profile firm, których nie widać w wyszukiwarce Instagrama.
-- **Scraping profili Instagram** po miastach i dzielnicach oraz **salonów z Booksy**: nick, nazwa, bio, liczba obserwujących, link w bio, kategoria.
-- **Kwalifikacja** odbywa się w Clay (opis niżej): odrzucone profile nie trafiają do kolejki wysyłki.
-- **Deduplikacja między kontami i źródłami**, żeby żaden salon nie dostał wiadomości dwa razy z różnych kont.
+- **Google dorks** (e.g. `site:instagram.com "lashes" "Krakow"`) return business profiles that Instagram's own search does not surface.
+- **Scraping Instagram profiles** by city and district, and **salons from Booksy**: handle, name, bio, follower count, link in bio, category.
+- **Qualification** happens in Clay (see below): rejected profiles never reach the sending queue.
+- **Deduplication across accounts and sources**, so no salon gets messaged twice from different accounts.
 
-### Clay: tabela salonów
+### Clay: the salon table
 
-Leady ze wszystkich źródeł trafiają do jednej tabeli w Clay (import przez webhook):
+Leads from all sources land in a single Clay table (imported via webhook):
 
-- **Wzbogacanie**: czy salon ma już stronę www, czy jest na Booksy, telefon i adres z wizytówki Google, miasto i dzielnica.
-- **Kolumna AI** rozpoznaje z bio i nazwy, czy to działalność, a nie konto prywatne, i jaka usługa (rzęsy, brwi, PMU, paznokcie, twarz). Salony bez strony dostają wyższy priorytet, bo dla nich oferta jest najbardziej trafiona.
-- **Deduplikacja po nicku** w tabeli, żeby salon z kilku źródeł był jednym wierszem.
-- **Statusy z systemu wracają do Clay webhookiem** przy każdej zmianie etapu: pierwsza wiadomość, odpowiedź, link do wygenerowanej strony, oferta i cena, odpowiedź po ofercie, klientka. Lejek per miasto, branża i konto widać w jednym miejscu.
+- **Enrichment**: whether the salon already has a website, whether it is on Booksy, phone number and address from the Google Business profile, city and district.
+- **An AI column** reads the bio and name to decide whether it is a business rather than a private account, and which service it offers (lashes, brows, PMU, nails, skincare). Salons without a website get a higher priority, because the offer fits them best.
+- **Deduplication by handle**, so a salon found in several sources is one row.
+- **Statuses flow back to Clay via webhook** on every stage change: first message, reply, link to the generated demo, offer and price, reply to the offer, client. The funnel per city, service and account is visible in one place.
 
-### 2. Zarządzanie kontami
+### 2. Account management
 
-- Każde konto ma **własny profil w przeglądarce antidetect**, **stałe proxy mobilne** i własny serwer MCP, przez który agenci sterują przeglądarką. Część kont działała też na emulatorach Androida.
-- **Limity zależne od wieku i kondycji konta**: nowe konto zaczyna od małej liczby pierwszych wiadomości dziennie (ok. 20-25), a dopiero sprawdzone konta dochodzą do ok. 50-55. Do tego limit na godzinę, minimalny odstęp między ofertami i brak ofert w pierwszej godzinie aktywności konta.
-- **Nowe konta wysyłają oferty dopiero do osób, które dostały pierwszą wiadomość poprzedniego dnia**, żeby nie generować serii linków zaraz po starcie.
-- **Plan dnia dla każdego konta**: noc bez aktywności, jedna dłuższa i kilka krótkich przerw z losowym przesunięciem, wysyłka seriami 3-5 wiadomości rozłożona na cały dzień. Przeglądarka w przerwie jest zamknięta.
-- **Monitoring kondycji**: „Failed to send”, blokada akcji, wymóg weryfikacji (selfie), wylogowanie albo zawieszenie konta automatycznie wstrzymują to konto, wysyłają **alert na Telegram** i przenoszą jego kolejkę leadów na pozostałe konta.
-- **System wie, ile ma sprawnych kont i ile wiadomości może dziś wysłać**, i według tego rozkłada leady oraz raportuje, kiedy kończy się pula.
+- Every account has **its own antidetect browser profile**, **a static mobile proxy** and its own MCP server through which the agents control the browser. Some accounts also ran on Android emulators.
+- **Limits based on account age and health**: a new account starts with a small number of first messages per day (~20-25) and only proven accounts go up to ~50-55. On top of that there is an hourly cap, a minimum gap between offers and no offers in the first hour of an account's activity.
+- **New accounts send offers only to people who received the first message on a previous day**, so they do not produce a burst of links right after starting.
+- **A daily plan for each account**: no activity at night, one longer and several short breaks with random offsets, messages sent in batches of 3-5 spread over the day. The browser is closed during breaks.
+- **Health monitoring**: "Failed to send", action blocks, verification requests (selfie), logouts or suspensions automatically pause the account, send **a Telegram alert** and move its lead queue to the remaining accounts.
+- **The system knows how many healthy accounts it has and how many messages it can send today**, distributes leads accordingly and reports when the lead pool is running out.
 
-### 3. Pierwsza wiadomość
+### 3. First message
 
-- Krótka wiadomość w stylu zwykłej rozmowy (np. pytanie, czy salon przyjmuje nowe klientki), w kilku wariantach i z różnym tonem zależnie od konta (konta kobiece i męskie).
-- Wysyłka seriami w oknie aktywności konta, z kontrolą, że wiadomość faktycznie poszła (widoczna w wątku).
+- A short, conversational message (e.g. asking whether the salon takes new clients), in several variants and with a tone matching the account (female and male accounts).
+- Sent in batches within the account's active hours, with a check that the message actually went through (visible in the thread).
 
-### 4. Skrzynka i analiza odpowiedzi
+### 4. Inbox and reply analysis
 
-- **Agent skrzynki** regularnie przegląda rozmowy (szybki rzut oka co kilka minut, pełny skan co kilka godzin).
-- **Najpierw kod, model tylko awaryjnie**: odczyt wątku robi kod (selektory, kotwica ostatniej zapisanej wiadomości), a agent przeglądarkowy z LLM wchodzi dopiero wtedy, gdy kod nic nie znajdzie. Przed zapisem kod sprawdza, czy otwarta jest właściwa rozmowa.
-- **Analityk** klasyfikuje odpowiedź: zainteresowanie, pytanie o termin, pytanie o cenę, odmowa, brak miejsc, komunikat systemowy Instagrama. Komunikaty systemowe kończą lead bez strony i oferty.
+- **The inbox agent** reviews conversations regularly (a quick glance every few minutes, a full scan every few hours).
+- **Code first, model only as a fallback**: reading a thread is done by code (selectors, an anchor on the last saved message); a browser agent with an LLM steps in only when the code finds nothing. Before saving, the code verifies that the right conversation is open.
+- **The analyst** classifies the reply: interest, question about a date, question about the price, refusal, fully booked, Instagram system message. System messages close the lead without a website or an offer.
 
-### 5. Generator strony
+### 5. Website generator
 
-- **Każdy, kto odpisze na pierwszą wiadomość**, uruchamia budowę **strony demo**: przykładowej, animowanej strony zrobionej z jego zdjęć, nazwy i usług. Nie jest to gotowy produkt, tylko pokaz, co mogę dla salonu zrobić, zanim zapłaci. Gdy demo jest gotowe, kolejną wiadomością jest oferta z linkiem do niego.
-- Docelową stronę przygotowuję po zakupie, w uzgodnionym z klientką stylu, na jej domenie.
-- Agenci generatora: weryfikator danych (nazwa, miasto, usługa), dobór zdjęć modelem vision, odtworzenie albo wygenerowanie logo, art director (paleta z 11 rodzin), copywriter, QA na zrzutach z telefonu. Strona jest publikowana na domenie z SSL.
-- Generator działa też samodzielnie, z panelu. Jego kod jest w folderze [`generator/`](generator/), przykład: [examplewebsite.pl/zaczarowanerzesypoznan](https://examplewebsite.pl/zaczarowanerzesypoznan/).
+- **Everyone who replies to the first message** triggers a **demo website** build: a sample animated website made from the salon's own photos, name and services. It is not the final product, but a showcase of what I can build for the salon before they pay. Once the demo is ready, the next message is an offer with a link to it.
+- The final website is built after the purchase, in a style agreed with the client, on their own domain.
+- Generator agents: data verifier (name, city, service), photo selection with a vision model, logo recreation or generation, art director (palette from 11 families), copywriter, QA on phone screenshots. The demo is published on a domain with SSL.
+- The generator also works on its own, from a dashboard. Its code is in [`generator/`](generator/); live example: [examplewebsite.pl/zaczarowanerzesypoznan](https://examplewebsite.pl/zaczarowanerzesypoznan/).
 
-### 6. Oferta
+### 6. Offer
 
-- Sekwencja kilku krótkich wiadomości: nawiązanie, link do strony demo z dopiskiem, że to przykład tego, co mogę zrobić, cena docelowej strony, pytanie zamykające.
-- **Cena zależna od wielkości profilu** (progi według liczby obserwujących).
-- **Testy A/B**: treść otwarcia, ceny, wariant ze zrzutem strony i bez, z podziałem na grupy od ustalonej daty.
+- A sequence of a few short messages: a hook, the link to the demo with a note that it is an example of what I can build, the price of the final website, a closing question.
+- **Price based on profile size** (tiers by follower count).
+- **A/B tests**: opening line, prices, variant with and without a screenshot of the website, split into groups from a fixed date.
 
-### 7. Odpowiedzi po ofercie: autonomia i człowiek w pętli
+### 7. Replies to the offer: autonomy with a human in the loop
 
-- Każda odpowiedź dostaje **ocenę LOW / MEDIUM / HIGH** i streszczenie, czego klientka chce.
-- **Pamięć rozmów**: system wyszukuje podobne wcześniejsze rozmowy (przede wszystkim te, w których odpisywałem sam) i na ich wzór przygotowuje odpowiedź w moim stylu (few-shot z historii).
-- **Typowe sytuacje bot obsługuje sam**: pytania o to, jak działa strona, o termin realizacji, prośba o inny styl, „odezwę się później”.
-- **Zakup, negocjacje i niejasne odpowiedzi idą do mnie** na Telegram z gotową propozycją: wysyłam ją jednym przyciskiem albo piszę własną komendą „odpisz @nick …”.
-- **Odpisuję wyłącznie z Telegrama, bez logowania się na konta Instagram.** Po kliknięciu „Wyślij” albo komendzie „odpisz @nick …” zadanie trafia do agenta konta, z którego prowadzona jest rozmowa: agent otwiera profil przeglądarki tego konta, wyszukuje rozmowę z klientką, sprawdza, czy otwarty jest właściwy wątek, wysyła wiadomość i potwierdza wysyłkę na Telegramie. Przy kilkunastu kontach jedna osoba obsługuje całą sprzedaż z telefonu.
-- **Przypomnienia**: lead „nie teraz” jest odkładany do daty wyczytanej z rozmowy, a w tym dniu dostaję przypomnienie z kontekstem. Rozmowy bez odpowiedzi wygasają po cichu, bez dopisywania kolejnych wiadomości.
+- Every reply gets a **LOW / MEDIUM / HIGH score** and a summary of what the client wants.
+- **Conversation memory**: the system retrieves similar past conversations (mainly the ones where I replied myself) and drafts a reply in my style based on them (few-shot from history).
+- **Typical situations are handled by the bot**: how the website works, delivery time, a request for a different style, "I'll get back to you later".
+- **Purchases, negotiations and unclear replies come to me** in Telegram with a ready draft: I send it with one tap or write my own with the command "reply @handle ...".
+- **I reply only from Telegram, without logging in to any Instagram account.** After tapping "Send" or using the "reply @handle ..." command, the task goes to the agent of the account that owns the conversation: the agent opens that account's browser profile, finds the conversation with the client, checks that the right thread is open, sends the message and confirms in Telegram. With a dozen accounts, one person runs all sales from a phone.
+- **Reminders**: a "not now" lead is snoozed until the date mentioned in the conversation, and on that day I get a reminder with context. Conversations without a reply expire quietly, without follow-up spam.
 
-### 8. Orkiestracja
+### 8. Orchestration
 
-- **Orkiestrator** uruchamia agentów jako osobne procesy: zwiadowca (kolejka i wysyłka), analityk, wykonawca (budowa strony i oferta), agent skrzynki, opiekun rozmów. Pilnuje, żeby nie uruchomić dwóch kopii (porty MCP), i podnosi agentów po restarcie serwera.
-- **Asynchroniczna szyna zdarzeń** na SQLite w trybie WAL: agenci nie wołają się bezpośrednio, tylko publikują zadania na tematach (np. `lead.messages`, `site.build`, `offer.send`). Każde zadanie ma stan, licznik prób, ponawianie z odczekaniem i może zostać odroczone.
-- **Odporność na dostawców AI**: łańcuchy modeli z zapasem u innych dostawców. Brak środków (HTTP 402) nie zjada prób, tylko odracza zadanie i wstrzymuje budowę stron, a po doładowaniu system sam wraca do pracy.
-- **Ustawienia w locie**: limity, okna wysyłki, tryb akceptacji ofert, przerwy kont i warianty testów są flagami w bazie, zmienianymi z Telegrama bez restartu.
-- **Bezpieczeństwo danych**: kopie bazy i konfiguracji przed każdą większą zmianą, testy jednostkowe agentów, wdrożenie przez git na serwer.
+- **The orchestrator** runs the agents as separate processes: scout (queue and sending), analyst, executor (website build and offer), inbox agent, conversation keeper. It prevents duplicate instances (MCP ports) and brings the agents back up after a server restart.
+- **Asynchronous event bus** on SQLite in WAL mode: agents never call each other directly, they publish tasks on topics (e.g. `lead.messages`, `site.build`, `offer.send`). Every task has a state, an attempt counter, retries with backoff and can be postponed.
+- **Resilience to AI providers**: model chains with fallbacks at other providers. Running out of credits (HTTP 402) does not burn attempts; the task is postponed, website builds pause, and the system resumes on its own after a top-up.
+- **Live settings**: limits, sending windows, offer approval mode, account breaks and test variants are flags in the database, changed from Telegram without a restart.
+- **Data safety**: database and config backups before every major change, unit tests for the agents, deployment to the server via git.
 
-### 9. Telegram jako centrum sterowania
+### 9. Telegram as the control centre
 
-Przykłady z prawdziwego działania (nicki zmienione).
+Real examples (translated from Polish, handles changed).
 
-**Podsumowanie dnia** (19.11.2026):
+**Daily summary** (19 Nov 2026):
 
 ```
-godz   1.wiad  oferty  odp
-08:00       2      11    2
-12:00       5       3    3
-16:00      13       7    6
-19:00      10       6   18
-21:00       9       8   11
+hour   1st msg  offers  replies
+08:00       2      11       2
+12:00       5       3       3
+16:00      13       7       6
+19:00      10       6      18
+21:00       9       8      11
 ...
-razem      98      72   99
+total      98      72      99
 
-1. wiadomości: 98 (dzień wcześniej 87), limity kont: 4/0 · 50/50 · 44/50
-Oferty wysłane: 72 (dzień wcześniej 57) · w kolejce: 18
-Odpisało na 1. wiadomość: 74 (69 → strona, 5 inne), ok. 75% dzisiejszych wysyłek
-Odpisało po ofercie: 25 (10 odmów, 10 neutralnych, 3 zainteresowane, 2 bardzo, 2 chcą kupić)
+First messages: 98 (previous day 87), account limits: 4/0 · 50/50 · 44/50
+Offers sent: 72 (previous day 57) · queued: 18
+Replied to the first message: 74 (69 → demo website, 5 other), ~75% of today's sends
+Replied after the offer: 25 (10 no, 10 neutral, 3 interested, 2 very interested, 2 want to buy)
 ```
 
-**Odpowiedź na ofertę z oceną i propozycją:**
+**A reply to an offer with a score and a suggested answer:**
 
 ```
-🔥 @salon_przyklad odpisała na ofertę - HIGH
-„Świetne! Na spokojnie to ogarnę i się odezwę! Planuję wprowadzić szkolenia..."
+🔥 @example_salon replied to the offer - HIGH
+"Great! I'll sort it out calmly and get back to you! I'm planning to launch training courses..."
 
-🧠 Bardzo zainteresowana, szczególnie w kontekście planowanych szkoleń
-💤 Odłożona do 04.12.2026 (chce ogarnąć na spokojnie) - wtedy przypomnę
+🧠 Very interested, especially in the context of the planned courses
+💤 Snoozed until 04.12.2026 (wants to take her time) - I'll remind you then
 
-✍️ Propozycja odpowiedzi:
-   „Super, cieszę się! Jak ogarniesz wszystko na spokojnie, to śmiało pisz,
-    chętnie dodam sekcję ze szkoleniami"
-📚 Wzorowane na 6 podobnych rozmowach (5 pisanych przez Ciebie)
+✍️ Suggested reply:
+   "Great, I'm glad! Once you've sorted everything out, just message me,
+    I'll happily add a section for your courses"
+📚 Modelled on 6 similar conversations (5 written by you)
 
-[ Wyślij tę odpowiedź ] [ Nie ] [ Za 3 dni ] [ Klientka ] [ Zamknij ]
+[ Send this reply ] [ No ] [ In 3 days ] [ Client ] [ Close ]
 ```
 
-**Alerty**: blokada albo zawieszenie konta, wylogowanie, brak środków u dostawcy AI, błąd budowy strony (z przyciskami „ponów” i „pomiń”), koniec puli leadów.
+**Alerts**: account block or suspension, logout, out of credits at an AI provider, website build error (with "retry" and "skip" buttons), lead pool running out.
 
-## Specyfikacja
+## Specification
 
-| Warstwa | Rozwiązanie |
+| Layer | Solution |
 |---|---|
-| Sterowanie przeglądarką | Playwright, browser-use, serwer MCP na konto, przeglądarka antidetect, proxy mobilne |
-| Agenci | orkiestrator + 5 ról, asynchroniczna szyna zdarzeń (SQLite WAL) |
-| Modele | Claude (Sonnet, Haiku), GPT, Gemini przez bramki API z łańcuchami zapasowymi; modele vision do zdjęć i zrzutów |
-| Generator stron | Python, szablony HTML, GSAP + ScrollTrigger + Lenis, QA w Playwright |
-| Dane o leadach | Clay: tabela salonów, wzbogacanie, kolumny AI, statusy lejka z webhooka |
-| Dane operacyjne | SQLite (rozmowy, zadania, flagi agentów) |
-| Sterowanie i alerty | Telegram Bot API: podsumowania, przyciski decyzji, alerty, zmiana ustawień |
-| Infrastruktura | Windows Server na VPS, SSH, git, kopie zapasowe |
+| Browser control | Playwright, browser-use, one MCP server per account, antidetect browser, mobile proxies |
+| Agents | orchestrator + 5 roles, asynchronous event bus (SQLite WAL) |
+| Models | Claude (Sonnet, Haiku), GPT, Gemini through API gateways with fallback chains; vision models for photos and screenshots |
+| Website generator | Python, HTML templates, GSAP + ScrollTrigger + Lenis, QA in Playwright |
+| Lead data | Clay: salon table, enrichment, AI columns, funnel statuses via webhook |
+| Operational data | SQLite (conversations, tasks, agent flags) |
+| Control and alerts | Telegram Bot API: summaries, decision buttons, alerts, settings changes |
+| Infrastructure | Windows Server on a VPS, SSH, git, backups |
 
-## Plan rozwoju
+## Roadmap
 
-Rzeczy, których jeszcze nie ma, a które są następnym krokiem:
+Things that do not exist yet and are the next step:
 
-- **Pamięć długoterminowa agentów.** Stan każdej rozmowy jako graf (LangGraph z checkpointerem) zamiast pojedynczych zadań, oraz baza wektorowa rozmów (np. pgvector) do wyszukiwania podobnych przypadków zamiast dopasowania po słowach.
-- **Ewaluacje i wersjonowanie promptów.** Zestaw testowy prawdziwych odpowiedzi z oceną (np. LangSmith albo własne evale), żeby każda zmiana promptu albo modelu była mierzona przed wdrożeniem.
-- **Wynik zdrowia konta.** Jedna liczba dla każdego konta liczona z historii blokad, odsetka odpowiedzi i wieku konta, która sama ustawia dzienne limity.
-- **Nauka na własnych odpowiedziach.** Dostrojenie małego modelu na odpowiedziach, które wysłałem ręcznie, żeby więcej rozmów szło bez mojego udziału.
-- **Panel metryk.** Lejek per konto, per wariant wiadomości i per miasto w jednym dashboardzie zamiast podsumowań w Telegramie.
+- **Long-term agent memory.** Each conversation's state as a graph (LangGraph with a checkpointer) instead of individual tasks, plus a vector store of conversations (e.g. pgvector) to retrieve similar cases instead of keyword matching.
+- **Evaluations and prompt versioning.** A test set of real replies with scores (e.g. LangSmith or custom evals), so every prompt or model change is measured before deployment.
+- **Account health score.** A single number per account computed from block history, reply rate and account age, which sets daily limits automatically.
+- **Learning from my own replies.** Fine-tuning a small model on the replies I sent manually, so more conversations run without me.
+- **Metrics dashboard.** The funnel per account, per message variant and per city in one dashboard instead of Telegram summaries.
 
-## Moja rola
+## My role
 
-Całość zaprojektowałem i zbudowałem sam: lejek, architekturę agentów, zarządzanie kontami, generator stron, wdrożenie na serwer i codzienną obsługę sprzedaży.
+I designed and built the whole system myself: the funnel, the agent architecture, account management, the website generator, server deployment and day-to-day sales operations.
 
 ---
 
-**Autor:** Patryk Olech, AI Automation & GTM Engineer · [inne projekty](https://github.com/patrykolech)
+**Author:** Patryk Olech, AI Automation & GTM Engineer · [more projects](https://github.com/patrykolech)
