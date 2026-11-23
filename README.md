@@ -39,6 +39,8 @@ flowchart LR
 
 Całość uruchamia [`generuj.py`](generuj.py), a agentów obsługuje [`agenci.py`](agenci.py).
 
+**Dwa tryby pracy:** generator działa automatycznie wewnątrz [systemu sprzedaży na Instagramie](https://github.com/patrykolech/instagram-ai-outreach) (strona powstaje, gdy salon odpisze na pierwszą wiadomość) albo samodzielnie, z panelu: wpisuje się nick salonu i dostaje gotową stronę, np. na potrzeby rozmowy z klientem spoza kampanii.
+
 ## Najważniejsze decyzje
 
 - **Agent nie może dopisać faktu spoza danych.** Każdą odpowiedź modelu sprawdza kod: nazwa, miasto czy usługa przechodzą tylko wtedy, gdy potwierdzają je dane z profilu. Dzięki temu strona nie wymyśla adresu ani usług, których salon nie robi.
