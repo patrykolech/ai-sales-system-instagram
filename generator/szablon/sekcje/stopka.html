@@ -1,0 +1,19 @@
+<!-- ============ STOPKA: winieta jak w magazynie (duza nazwa na cala szerokosc), wzor z monogramu, skroty do sekcji,
+     przycisk do gory (kotwica dziala bez JS), nota podgladu ============ -->
+<footer class="stopka {{PW}} faktura" data-nav="{{NAV}}" data-sekcja="stopka"{{PRZ_ATR}}>
+{{PRZEJSCIE}}
+ <div class="stopka-wew">
+  <p class="stopka-winieta" style="--szer-em:{{SZER_EM}}">{{NAZWA}}</p>
+  <div class="stopka-siatka">
+   <nav class="stopka-spis" aria-label="Sekcje strony">
+{{SKROTY}}
+   </nav>
+   <div class="stopka-o">
+    <p class="stopka-ig"><a href="{{IG_URL}}">@{{NICK}}</a></p>
+{{INTRO}}
+    <p class="stopka-nota">Podgląd przygotowany z&nbsp;publicznych materiałów profilu @{{NICK}}. Prośbę o&nbsp;usunięcie wyślij na&nbsp;<mark class="todo">[DO UZUPEŁNIENIA]</mark>.</p>
+   </div>
+   <a class="stopka-gora" href="#hero">Do góry<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 13.5v-11M3.5 7l4.5-4.5L12.5 7"/></svg></a>
+  </div>
+ </div>
+</footer>

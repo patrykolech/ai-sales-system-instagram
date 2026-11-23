@@ -1,0 +1,15 @@
+<!-- ============ GALERIA LUSTER: lusterka z jej zdjeciami skladaja sie wokol naglowka (desktop: pin + scrub; telefon: scrub bez pinu).
+     Stan bez JS i przy ograniczonym ruchu = gotowa kompozycja. Haki: data-scene="galeria", data-anim="galeria-scena", "gl-lustro" (+ data-glebia) ============ -->
+<section class="galeria {{PW}}" id="prace" data-nav="{{NAV}}" data-sekcja="prace" data-scene="galeria" aria-labelledby="prace-h2">
+ <div class="galeria-scena faktura" data-anim="galeria-scena">
+  <h2 id="prace-h2" class="galeria-h2">{{H2_LINIE}}</h2>
+  <ul class="lustra lustra--{{N}}" aria-hidden="true">
+{{LUSTRA}}
+  </ul>
+  <div class="galeria-stopka">
+   {{NR}}
+   <p class="galeria-podpis">{{PODPIS}}</p>
+   <a class="pomin-scene" href="#z-bliska">Pomiń scenę{{STRZALKA}}</a>
+  </div>
+ </div>
+</section>

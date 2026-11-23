@@ -1,0 +1,788 @@
+/* =====================================================================
+   hero.css  -  prototyp hero "Moment w lustrze" + poczatek sekcji "Uslugi i ceny"
+   Sciezka A (statyczny HTML/CSS). Wspolny dla wszystkich klientek.
+   Tokeny kolorow, wymiary zdjec i ogniska zdjecia przychodza z <style> w <head>
+   kazdej strony (zbuduj_hero.py). Tu nie ma zadnego recznego koloru klientki.
+
+   -----------------------------------------------------------------------
+   DLA web-animator: HAKI I STANY
+   -----------------------------------------------------------------------
+   Stan domyslny strony (bez JS, prefers-reduced-motion, telefon w poziomie
+   o wysokosci <= 500 px): strona kompletna, otwarta puderniczka, zdjecie
+   koncowe jako zwykly blok. Zadnego przyklejania.
+
+   Stan sceny wlacza sie TYLKO gdy jednoczesnie: <html class="js"> (skrypt
+   inline w <head>), prefers-reduced-motion: no-preference i wysokosc okna
+   >= 501 px. Te same warunki sprawdz w main.js. Gdy GSAP nie dziala albo
+   warunki nie sa spelnione: zdejmij klase "js" z <html>.
+
+   Hierarchia (kazdy wezel ma data-anim):
+     [data-scene="lustro"]            .hero          sekcja
+       [data-anim="przebieg"]         .przebieg      tor scrolla, wysokosc 100svh + T (T = --T)
+         [data-anim="scena"]          .scena         sticky 100svh; atrybut data-faza
+           poswiata                   tlo (obraz inline), znika w fazie koncowej
+           przyciemnienie             tlo-ciemne, krycie 0 -> .35
+           pasek                      awatar + @nick + "Umow wizyte"
+           kola > kolo[data-miejsce=S1..S7]   male lusterka (statyczne)
+           puder-dol > podstawa       dol puderniczki
+           zdjecie > zdjecie-wew > zdjecie-img, lusterko-hi      zdjecie (kontener O i zdjecie P)
+           luk                        cienki luk metalu po krawedzi kola koncowego
+           puder-gora                 gora: zawias-z, panel (wieczko / tyl), rama-plaska, zawias-o
+             panel > panel-przod (wieczko) , panel-tyl (lustro-tyl + rama-tyl)
+           cien                       przyciemnienie gory zdjecia pod winieta (telefon, koniec)
+           teksty > h1, przewin, cta-statyczny,
+                    koniec = OKLADKA: winieta-blok (winieta > winieta-w, wydanie),
+                                      pas (nav.spis > a.spis__poz > .spis__nr + .spis__tyt, cta-koniec)
+       kotwica (#efekt)               koniec toru, cel linku "Przewin, zeby otworzyc"
+
+   Okladka (stan koncowy, 2026-11-10): telefon = zdjecie na calym ekranie, winieta (nazwa) na gorze na cieniu,
+   pod nia linia "usluga | miasto", na dole pas w kolorze --przelamanie ze spisem tresci i CTA. Pas zaslania dol
+   kola zdjecia, wiec nigdzie nie ma luku. Desktop = pas jako panel po lewej (0-34vw), zdjecie w kole po prawej.
+   Spis ({{SPIS}}) wstawia zbuduj_strone.py; sam hero ma pusty spis. 1-4 pozycje: jedna kolumna, 5+: dwie (telefon).
+   Kolory hero tylko z tokenow palety strony: --papier (tekst na mroku), --guzik/--guzik-tekst (przycisk),
+   --akcent-mrok (akcent czytelny na --tlo, liczony w zbuduj_hero), --przelamanie/--na-przelamaniu (pas).
+   Faktura tla: --ziarno-j/--ziarno-c (bitmapy ziarna w assets/css, zbuduj_hero.zrob_ziarno) + --wzor (monogram klientki, kafel inline).
+
+   Stany (atrybut data-faza na .scena; brak atrybutu = zamknieta = p 0%):
+     zamknieta  p 0%        sekcja 6 briefu
+     otwarta    p 30-48%    sekcja 8: trzeci telefon (lusterko, oko wyrazne)
+     koncowa    p 92-100%   zdjecie bez nakladek, luk, zdanie, CTA
+   Zrodlem prawdy geometrii jest CSS: ustaw data-faza, odczytaj
+   getComputedStyle(el).transform / opacity, wroc. Zmienne unitless liczy
+   assets/js/hero.js (--k0, --sp, --pdx, --pdy). Skala otwarcia k = --k (stala 1,111,
+   odstepstwo od briefu: R0 = 1,111 R zamiast min(40vw, 21,5svh)).
+
+   Pozostale haki: data-anim="h1", "przewin", "zdanie", "linia", "cta-koniec",
+   "cta-statyczny", "zawias-z", "zawias-o", "panel", "wieczko", "rama-tyl",
+   "lustro-tyl", "rama-plaska", "podstawa", "zdjecie", "zdjecie-wew",
+   "lusterko-hi" (krycie 1 -> 0 podczas wzrostu), "luk", "poswiata",
+   "przyciemnienie", "pasek", "kolo" (+ --ox/--oy: wektor rozstapienia w
+   jednostkach R), "uslugi" (poczatek sekcji, bez ruchu).
+   Obrot wieczka: transform-origin na osi zawiasu, rotateX(0 -> 180deg).
+   Etap 3: ruch robi assets/js/main.js (GSAP, scrub). Stany data-faza zostaja w CSS jako zrodlo
+   geometrii (main.js ustawia je na chwile, odczytuje i zdejmuje) oraz do podgladu ?faza=...
+   ===================================================================== */
+
+/* ---------- 1. Kroje (lokalne, latin + latin-ext) ---------- */
+/* sama kursywa, wiec deklarowana jako normal: wszystkie naglowki sa nia pisane i przegladarka niczego nie pochyla sztucznie */
+@font-face {
+  font-family: "Bodoni Moda Kursywa";
+  src: url("../fonts/bodoni-moda-italic-pl.woff2") format("woff2");
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+/* zastepcze kroje z metrykami Bodoni (pomiar w Chromium: szerokosc i linia 1:1), zeby podmiana fontu nic nie przesuwala (CLS) */
+@font-face {
+  font-family: "Bodoni Zastepczy T";
+  src: local("Times New Roman Italic"), local("TimesNewRomanPS-ItalicMT");
+  size-adjust: 107.80%; ascent-override: 104.82%; descent-override: 37.11%; line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Bodoni Zastepczy G";
+  src: local("Georgia Italic"), local("Georgia-Italic");
+  size-adjust: 95.94%; ascent-override: 117.78%; descent-override: 41.69%; line-gap-override: 0%;
+}
+/* Android (Instagram): kursywa systemowa zamiast prostego serifu; linia dokladna (113/40 na 100 px), szerokosc szacowana jak Georgia */
+@font-face {
+  font-family: "Bodoni Zastepczy N";
+  src: local("Noto Serif Italic"), local("NotoSerif-Italic");
+  size-adjust: 95.94%; ascent-override: 117.78%; descent-override: 41.69%; line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Hanken Grotesk";
+  src: url("../fonts/hanken-grotesk-latin-ext-wght.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- 2. Baza ---------- */
+:root {
+  --vh1: 1vh;
+  --font-display: "Bodoni Moda Kursywa", "Bodoni Zastepczy T", "Bodoni Zastepczy G", "Bodoni Zastepczy N", serif;
+  --guzik: #ead9cc;
+  --guzik-tekst: #2e211b;
+  --slowo-kolor: var(--papier, #fbf5ef);
+  --font-tekst: "Hanken Grotesk", system-ui, sans-serif;
+  /* ziarno: bitmapa (zbuduj_hero.zrob_ziarno), jasne drobiny na ciemnym i ciemne na jasnym; obraz tla nie blokuje renderu */
+  --ziarno-j: url("ziarno-j.webp");
+  --ziarno-c: url("ziarno-c.webp");
+  --faktura: var(--wzor, none) 0 0 / 150px 150px repeat, var(--ziarno-j) 0 0 / 96px 96px repeat;
+  --luk-s: min(15.5vw, 96px);
+  --z0: 64px;
+  --blok: 166px;
+}
+@supports (height: 100svh) {
+  :root { --vh1: 1svh; }
+}
+/* wysokosc sceny = DUZY ekran (pasek Safari schowany). Uklad liczymy dalej w svh (--sh), a teksty przy dolnej krawedzi
+   siedza w pudelku o wysokosci --sh, wiec pasek ich nie zaslania. Bez tego po schowaniu paska pod scena zostawal pas innego tla,
+   ktory ucinal podstawe puderniczki (zrzut wlasciciela z iPhone'a, 2026-11-10). */
+:root { --ekran-duzy: 100vh; }
+@supports (height: 100lvh) {
+  :root { --ekran-duzy: 100lvh; }
+}
+@media (max-height: 699px) { :root { --z0: 56px; --blok: 148px; } }
+@media (max-height: 619px) { :root { --blok: 136px; } }
+@media (min-width: 768px) { :root { --luk-s: min(15.5vw, 110px); } }
+
+/* Lenis (lenis@1.3.26/dist/lenis.css): klasy dodaje biblioteka, tylko na desktopie z myszka */
+html.lenis, html.lenis body { height: auto; }
+.lenis:not(.lenis-autoToggle).lenis-stopped { overflow: clip; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  -webkit-text-size-adjust: 100%;
+  background: var(--tlo);
+  scrollbar-color: var(--guzik) var(--tlo-ciemne);
+  accent-color: var(--guzik);
+}
+body {
+  margin: 0;
+  background: var(--tlo);
+  color: var(--jasny);
+  font: 400 17px/26px var(--font-tekst);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  overflow-wrap: break-word;
+  caret-color: var(--metal);
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-underline-offset: 0.18em; }
+:focus-visible { outline: 2px solid var(--akcent-mrok, var(--metal)); outline-offset: 3px; }
+.pas :focus-visible, .koniec :focus-visible { outline-color: var(--na-przelamaniu); }
+.uslugi :focus-visible { outline-color: var(--metal-cien); }
+img[data-src]:not([src]) { display: none; }
+/* paczka 2 laduje sie po load, ale w scenie zostaje niewidoczna do pierwszego ruchu (klasa .p2): inaczej rama pod wieczkiem staje sie LCP */
+html.js:not(.p2) img[data-src] { opacity: 0; }
+::selection { background: var(--guzik); color: var(--guzik-tekst); }
+::-webkit-scrollbar { width: 10px; background: var(--tlo-ciemne); }
+::-webkit-scrollbar-thumb { background: var(--guzik); border-radius: 999px; border: 2px solid var(--tlo-ciemne); }
+
+.pomin {
+  position: absolute; left: 12px; top: -80px; z-index: 100;
+  padding: 12px 18px; border-radius: 999px;
+  background: var(--guzik); color: var(--guzik-tekst);
+  font: 500 16px/20px var(--font-tekst); text-decoration: none;
+}
+.pomin:focus { top: 12px; }
+
+mark.todo {
+  background: var(--metal); color: var(--atrament);
+  padding: 0 0.25em; border-radius: 2px;
+}
+
+/* ---------- 3. Pasek, przyciski ---------- */
+.pasek {
+  position: relative; z-index: 9;
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; height: var(--z0);
+  padding: 0 20px;
+}
+.pasek a {
+  display: inline-flex; align-items: center;
+  min-height: 44px; text-decoration: none;
+}
+.pasek__profil { gap: 10px; min-width: 0; font: 500 14px/20px var(--font-tekst); }
+.pasek__profil span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pasek__cta { flex: none; margin-left: 12px; }
+.pasek__profil img {
+  width: 32px; height: 32px; border-radius: 50%; object-fit: cover;
+  box-shadow: 0 0 0 1.5px rgb(var(--papier-rgb) / 0.6);
+}
+.pasek__cta {
+  font: 500 15px/20px var(--font-tekst);
+  text-decoration: underline; text-decoration-thickness: 1px;
+}
+
+.przycisk {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 52px; padding: 0 26px;
+  border-radius: 999px;
+  background: var(--lakier); color: var(--atrament);
+  font: 500 16px/20px var(--font-tekst);
+  text-decoration: none; text-align: center;
+}
+.przycisk svg { width: 16px; height: 16px; flex: none; }
+.przycisk:hover { background: var(--papier); color: var(--atrament); }
+.przycisk:active { transform: translateY(1px); }
+.przewin { display: none; padding-right: 22px; }
+.przewin svg { transition: transform 0.2s; }
+
+/* ---------- 4. STAN DOMYSLNY (bez JS / ograniczony ruch): otwarta puderniczka w przeplywie ---------- */
+.hero { position: relative; background: var(--faktura), var(--tlo); color: var(--papier); overflow-x: clip; }
+.scena {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  --sh: calc(var(--vh1) * 100);
+  --Rs: max(104px, min(38vw, calc((var(--sh) - var(--z0) - var(--blok) - 16px) / 4.1)));
+  isolation: isolate;
+}
+.poswiata {
+  position: absolute; left: 0; right: 0; top: 0; z-index: -1; height: calc(var(--vh1) * 100);
+  background: var(--faktura), radial-gradient(70% 45% at 50% 43%, var(--tlo-jasne), var(--tlo) 72%, var(--tlo-ciemne));
+  pointer-events: none;
+}
+.przyciemnienie, .kola, .luk, .kotwica, .slowo, .cien { display: none; }
+.hero .przycisk { background: var(--guzik); color: var(--guzik-tekst); }
+.hero .przycisk:hover { background: var(--papier); color: var(--atrament); }
+.teksty, .teksty > .koniec { display: contents; }
+.scena > .pasek { order: 0; }
+.puder { order: 1; position: relative; width: 100%; height: calc(var(--Rs) * 4.06); margin-top: 4px; }
+.teksty > h1 { order: 2; }
+.teksty > .cta-statyczny { order: 3; }
+.winieta-blok { order: 4; }
+.zdjecie { order: 5; }
+.pas { order: 6; }
+
+.puder-dol, .puder-gora {
+  --R: var(--Rs);
+  position: absolute; left: 50%; top: 50%; width: 0; height: 0;
+}
+.podstawa, .rama-plaska, .panel {
+  position: absolute; left: calc(var(--R) * -1);
+  width: calc(var(--R) * 2); height: calc(var(--R) * 2);
+}
+.podstawa { top: calc(var(--R) * 0.03); }
+.rama-plaska { top: calc(var(--R) * -2.03); }
+.podstawa::before, .panel-przod::before {
+  content: ""; position: absolute; inset: 1%; border-radius: 50%;
+  background: var(--lakier);
+  box-shadow: 0 6px 18px rgb(var(--tlo-ciemne-rgb) / 0.45);
+}
+.panel-przod::before { box-shadow: none; }
+.rama-plaska, .rama-tyl {
+  background: radial-gradient(circle closest-side, transparent 87%, var(--lakier) 88% 98%, transparent 99%);
+}
+.warstwa { display: block; width: 100%; height: 100%; max-width: none; position: relative; z-index: 1; }
+.panel, .zawias-z { display: none; }
+.zawias-o {
+  position: absolute; z-index: 3; max-width: none;
+  left: calc(var(--R) * -0.2529); top: calc(var(--R) * -0.0538);
+  width: calc(var(--R) * 0.5058); height: calc(var(--R) * 0.1076);
+}
+.lustro {
+  position: absolute; z-index: 0; border-radius: 50%; overflow: hidden;
+  left: 5.8%; top: 6.85%; width: 88.05%; height: 88.05%;
+  background: var(--lustro-mini, var(--lakier)) center / cover no-repeat;
+}
+.lustro img { width: 100%; height: 100%; object-fit: cover; max-width: none; }
+
+.teksty > h1 {
+  margin: 6px 0 14px; padding: 0 20px; max-width: 520px;
+  font: 400 clamp(27px, 8.7vw, 34px) / 1.12 var(--font-display);
+  text-align: center; text-wrap: balance; color: var(--papier);
+}
+.teksty > .cta-statyczny { margin-bottom: 48px; }
+
+/* zdjecie okladki: prostokat na cala szerokosc (bez luku), winieta nad nim, pas ze spisem pod nim */
+.zdjecie {
+  position: relative; width: 100%; height: calc(var(--vh1) * 62);
+  overflow: hidden; isolation: isolate;
+  background: var(--lakier);
+}
+.zdjecie-wew { position: absolute; inset: 0; }
+.zdjecie-img {
+  width: 100%; height: 100%; max-width: none; object-fit: cover;
+  object-position: calc(var(--fx) * 100%) calc(var(--fy) * 100%);
+}
+.lusterko-hi { display: none; }
+
+/* ---------- 4a. OKLADKA: winieta, linia wydania, pas ze spisem (wspolne dla stanu statycznego i sceny) ---------- */
+.winieta-blok {
+  width: 100%; padding: 28px 20px 18px;
+  --winieta-fs: clamp(34px, calc((100vw - 40px) / var(--winieta-em, 7) * 0.97), 92px);
+}
+.winieta {
+  margin: 0 -0.14em -0.2em; padding: 0 0.14em 0.2em;            /* zapas na nawisy kursywy i ogonki, a mimo to maska przycina */
+  overflow: hidden; white-space: nowrap;
+  font: 500 var(--winieta-fs) / 1 var(--font-display); letter-spacing: -0.01em;
+  color: var(--papier);
+}
+.winieta--dluga { white-space: normal; text-wrap: balance; --winieta-fs: clamp(32px, 9vw, 44px); }
+.winieta__w { display: inline-block; }
+.wydanie {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 6px 16px; flex-wrap: wrap;
+  margin: 8px 0 0; padding-top: 9px; border-top: 1px solid rgb(var(--papier-rgb) / 0.55);
+  font: 500 14px/20px var(--font-tekst); color: var(--papier);
+}
+.wydanie span:empty { display: none; }
+.wydanie span + span { margin-left: auto; text-align: right; }
+
+.pas {
+  width: 100%; padding: 22px 20px 36px;
+  display: flex; flex-direction: column; align-items: stretch; gap: 18px;
+  background: var(--ziarno-c) 0 0 / 96px 96px repeat, var(--ziarno-j) 48px 48px / 96px 96px repeat, var(--przelamanie);
+  color: var(--na-przelamaniu);
+}
+.hero .pas .przycisk { align-self: flex-start; background: var(--na-przelamaniu); color: var(--przelamanie); }
+.hero .pas .przycisk:hover { background: rgb(var(--na-przelamaniu-rgb) / 0.84); color: var(--przelamanie); }
+
+/* spis tresci: markup z zbuduj_strone.py (nav.spis > a.spis__poz > .spis__nr + .spis__tyt). 1-4 pozycje w jednej kolumnie,
+   5 i wiecej w dwoch kolumnach czytanych z gory na dol; kazdy wiersz to cel dotyku >= 44 px */
+.spis {
+  display: grid; grid-template-columns: repeat(2, auto); column-gap: 20px;          /* auto: dluzszy tytul dostaje szersza kolumne */
+  border-bottom: 1px solid rgb(var(--na-przelamaniu-rgb) / 0.3);
+}
+.spis:not(:has(> :nth-child(5))) { grid-template-columns: minmax(0, 1fr); }
+.spis:has(> :nth-child(5)) { grid-auto-flow: column; grid-template-rows: repeat(3, auto); }
+.spis:has(> :nth-child(7)) { grid-template-rows: repeat(4, auto); }
+.spis:has(> :nth-child(9)) { grid-template-rows: repeat(5, auto); }
+.spis__poz {
+  display: flex; align-items: baseline; gap: 10px; min-height: 44px; padding: 11px 0 10px;
+  border-top: 1px solid rgb(var(--na-przelamaniu-rgb) / 0.3);
+  color: inherit; text-decoration: none;
+}
+.spis__nr {
+  flex: none; min-width: 1.6em;
+  font: 500 17px/20px var(--font-display); font-variant-numeric: lining-nums tabular-nums;
+}
+.spis__tyt { min-width: 0; font: 500 15px/20px var(--font-tekst); overflow-wrap: anywhere; text-wrap: balance; }
+.spis__poz:hover .spis__tyt { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.2em; }
+
+/* ---------- 5. Poczatek sekcji Uslugi i ceny ---------- */
+.uslugi {
+  position: relative; background: var(--puder); color: var(--atrament);
+  padding: 72px 20px;
+}
+.uslugi-wew { max-width: 640px; margin: 0 auto; }
+.uslugi h2 {
+  margin: 0 0 20px; font: 400 30px/34px var(--font-display);
+  text-wrap: balance; color: var(--atrament);
+}
+.uslugi-nota { margin: 0 0 28px; font: 400 14px/20px var(--font-tekst); color: var(--szept); }
+.grupa { border: 0; margin: 0 0 8px; }
+.grupa > summary, .grupa > h3 {
+  list-style: none; margin: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  min-height: 44px; padding: 10px 0;
+}
+.grupa > h3 { cursor: default; }
+.grupa > summary::-webkit-details-marker { display: none; }
+.grupa h3, .grupa summary h3 { margin: 0; font: 400 22px/28px var(--font-display); color: var(--atrament); text-wrap: balance; }
+.grupa summary svg { width: 16px; height: 16px; flex: none; color: var(--metal-cien); transition: transform 0.2s; }
+.grupa[open] > summary svg { transform: rotate(180deg); }
+.cennik { list-style: none; margin: 0 0 20px; padding: 0; }
+.cennik li {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 20px;
+  padding: 12px 0; border-bottom: 1px solid var(--lakier);
+  font: 400 17px/26px var(--font-tekst);
+}
+.cennik li:first-child { border-top: 1px solid var(--lakier); }
+.cennik .c { flex: none; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.uslugi-cta { margin-top: 24px; }
+.uslugi-cta .przycisk { background: var(--atrament); color: var(--jasny); }
+.uslugi-cta .przycisk:hover { background: var(--szept); }
+.uslugi-brak { margin: 0 0 8px; font: 400 17px/26px var(--font-tekst); color: var(--atrament); }
+
+.stopka { background: var(--tlo-ciemne); color: var(--szept-jasny); padding: 40px 20px 48px; }
+.stopka p { max-width: 640px; margin: 0 auto; font: 400 14px/20px var(--font-tekst); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .grupa[open] > .cennik { animation: otworz 200ms ease-out; }
+}
+@keyframes otworz { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- 6. Tablet i desktop, stan domyslny ---------- */
+@media (min-width: 768px) {
+  .teksty > h1 { font-size: clamp(34px, 5vw, 44px); max-width: 640px; }
+  .uslugi { padding-left: 32px; padding-right: 32px; }
+  .uslugi h2 { font-size: 34px; line-height: 38px; }
+  .winieta-blok, .pas { padding-left: max(32px, calc((100% - 640px) / 2)); padding-right: max(32px, calc((100% - 640px) / 2)); }
+  .winieta-blok { --winieta-fs: clamp(40px, calc(min(100vw - 64px, 640px) / var(--winieta-em, 7) * 0.97), 104px); }
+}
+@media (min-width: 1100px) {
+  .scena {
+    display: grid; align-items: center;
+    grid-template-columns: minmax(0, 5.5vw) minmax(0, 31vw) minmax(0, 1fr);
+    --Rs: min(21vh, 15vw);
+  }
+  .scena > .pasek { grid-column: 1 / -1; }
+  .puder { grid-column: 3; grid-row: 2 / span 2; margin: 0; height: calc(var(--Rs) * 4.06); }
+  .teksty > h1 {
+    grid-column: 2; grid-row: 2; align-self: end; text-align: left; padding: 0; margin: 0 0 28px;
+    font-size: clamp(44px, 3.9vw, 56px); line-height: 1.07; max-width: none;
+  }
+  .teksty > .cta-statyczny { grid-column: 2; grid-row: 3; align-self: start; justify-self: start; margin: 0; }
+  .winieta-blok { grid-column: 1 / -1; width: min(100% - 64px, 880px); margin: 40px auto 0; padding-left: 0; padding-right: 0; }
+  .winieta-blok { --winieta-fs: clamp(48px, calc(min(100vw - 64px, 880px) / var(--winieta-em, 7) * 0.97), 128px); }
+  .zdjecie { grid-column: 1 / -1; width: min(100% - 64px, 880px); height: min(76vh, 760px); margin: 0 auto; }
+  .pas { grid-column: 1 / -1; width: min(100% - 64px, 880px); margin: 0 auto 72px; padding-left: 32px; padding-right: 32px; }
+}
+
+/* =====================================================================
+   7. STAN SCENY (html.js + ruch dozwolony + wysokosc > 500 px)
+   Wszystko ponizej dziala tylko w tym stanie.
+   ===================================================================== */
+@media (prefers-reduced-motion: no-preference) and (min-height: 501px) {
+  html.js .hero {
+    --sh: calc(var(--vh1) * 100);
+    --T: calc(var(--vh1) * 150);
+    --R: min(36vw, calc(var(--vh1) * 19));
+    --k: 1.111;
+    --R0: calc(var(--R) * var(--k));
+    --cx: 50vw;
+    --zjazd: 24px;                                       /* miejsce na slowo nad puderniczka */
+    --cy: calc(var(--z0) + (var(--sh) - var(--z0) - var(--blok)) * 0.48 + var(--zjazd));
+    /* litery koncza sie nad wieczkiem: ogonek w "e" nie moze zniknac za puderniczka */
+    --slowo-fs: min(calc(90vw / var(--slowo-em)), calc((var(--cy) - var(--R) - var(--z0) - 12px) / 1.13));
+    /* polozenie slowa jako zmienne: korzysta z nich tez maska konturu (zbuduj_hero.maska_slowa_css) */
+    --slowo-top: calc(var(--cy) - var(--R) - 12px - var(--slowo-fs) * 1.15);
+    --slowo-x: 0px;
+    --slowo-pad: calc(var(--slowo-fs) * 0.45);
+    --ax: calc(var(--cy) - var(--R) * 1.03);
+    --axo: calc(var(--sh) / 2 + 6px);
+    --dyo: calc(var(--axo) - var(--ax));
+    --rF: 88.39vw;
+    --arcy: calc(var(--sh) * 0.665);
+    --cyF: calc(var(--arcy) - var(--rF));
+    --ocyo: calc(var(--axo) - var(--R0) * 1.013);
+    --covW: 100vw;
+    --covH: var(--arcy);
+    --X0: calc(var(--rF) - var(--cx));
+    --Y0: calc(var(--rF) * 2 - var(--arcy));
+    --ay: 0.42;
+    /* gora pasa okladki: kolo zdjecia pokrywa cala szerokosc ekranu do y = luk - 0,155 w (rF = 0,8839 w), 8 px zapasu;
+       pas zaslania wszystko ponizej, wiec na koncu nie widac luku */
+    --pas-top: calc(var(--arcy) - 15.5vw - 8px);
+  }
+  html.js .scena { --Rs: var(--R); }
+
+  html.js .przebieg { position: relative; height: calc(max(var(--sh), var(--ekran-duzy)) + var(--T)); }
+  html.js .scena {
+    position: sticky; top: 0; display: block;
+    height: max(var(--sh), var(--ekran-duzy)); overflow: hidden; background: var(--faktura), var(--tlo);
+  }
+  html.js .kotwica { display: block; position: absolute; left: 0; top: var(--T); width: 1px; height: 1px; pointer-events: none; }
+
+  html.js .poswiata { inset: 0; height: auto; z-index: 0; }
+  html.js .przyciemnienie { display: block; position: absolute; inset: 0; z-index: 1; background: var(--tlo-ciemne); opacity: 0; pointer-events: none; }
+  html.js .pasek { position: absolute; left: 0; top: 0; z-index: 9; }
+
+  /* --- slowo przez zdjecia: pelne pod kolami, kontur nad nimi, oba pod puderniczka --- */
+  html.js .slowo {
+    display: block; position: absolute; left: 0; right: 0; z-index: 2;
+    top: var(--slowo-top);
+    font: 500 var(--slowo-fs) / 1 var(--font-display);
+    text-align: center; white-space: nowrap; pointer-events: none;
+    color: var(--slowo-kolor);
+  }
+  /* kontur ma pudelko powiekszone o --slowo-pad w gore i w dol (ogonki), maska z kol przycina go do zdjec */
+  html.js .slowo--kontur {
+    color: transparent; -webkit-text-stroke: 1.2px var(--slowo-kolor); isolation: isolate;
+    padding: var(--slowo-pad) 0; margin-top: calc(var(--slowo-pad) * -1);
+  }
+  /* ciemna krawedz pod konturem: kontur ma byc czytelny tez na jasnych zdjeciach (tylko w kolach, dzieki masce) */
+  html.js .slowo--kontur::before { content: attr(data-slowo); position: absolute; inset: 0; z-index: -1; padding: inherit; -webkit-text-stroke: 4.6px rgb(var(--tlo-ciemne-rgb) / 0.80); }
+  /* slowo czeka na font: bez skoku z kroju zastepczego */
+  html.js:not(.fonty) .slowo, html.js:not(.fonty) .slowo--kontur::before { color: transparent; -webkit-text-stroke-width: 0; }
+  html.js .scena[data-faza="otwarta"] .slowo, html.js .scena[data-faza="koncowa"] .slowo { opacity: 0; visibility: hidden; }
+
+  /* --- male lusterka (statyczne; wektor rozstapienia --ox/--oy w jednostkach R) --- */
+  html.js .kola { display: block; position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  html.js .kolo {
+    --l: var(--lw); --dy: var(--dyw); --r: var(--rw); --dx: var(--dxw);
+    position: absolute; border-radius: 50%; opacity: var(--krycie, 1);
+    width: calc(var(--r) * var(--R) * 2); height: calc(var(--r) * var(--R) * 2);
+    left: calc(var(--l) * 1vw - var(--r) * var(--R));
+    top: calc(var(--cy) + var(--dy) * var(--R) - var(--r) * var(--R));
+    box-shadow: 0 6px 18px rgb(var(--tlo-ciemne-rgb) / 0.45);
+  }
+  html.js .kolo img { width: 100%; height: 100%; max-width: none; border-radius: 50%; object-fit: cover; }
+  html.js .kolo::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px rgb(var(--papier-rgb) / 0.42), inset 0 0 0 2.5px rgb(var(--tlo-ciemne-rgb) / 0.5);
+  }
+  html.js .kolo--puste {
+    background: linear-gradient(150deg, var(--tlo-jasne), var(--tlo));
+    overflow: hidden;
+  }
+  html.js .kolo--puste::before {
+    content: ""; position: absolute; left: -10%; right: -10%; top: 38%; height: 14%;
+    background: rgb(var(--papier-rgb) / 0.12); transform: rotate(-30deg);
+  }
+  @media (min-aspect-ratio: 1/2) {
+    html.js .kolo { --l: var(--ln); --dy: var(--dyn); --r: var(--rn); --dx: var(--dxn); }
+  }
+  @media (max-height: 600px) {
+    html.js .kolo--s5, html.js .kolo--s6, html.js .kolo--s7 { display: none; }
+  }
+
+  /* --- puderniczka: dol i gora w jednym ukladzie z osia zawiasu --- */
+  html.js .puder { display: contents; }
+  html.js .puder-dol, html.js .puder-gora {
+    position: absolute; left: var(--cx); top: var(--ax); width: 0; height: 0;
+    transform-origin: 0 0; transform: translate3d(0, 0, 0) scale(1);
+  }
+  html.js .puder-dol { z-index: 3; }
+  html.js .puder-gora { z-index: 6; perspective: 900px; }
+  html.js .rama-plaska { top: calc(var(--R) * -2.03); opacity: 0; visibility: hidden; }
+  html.js .zawias-o { opacity: 0; }
+  html.js .zawias-z {
+    display: block; position: absolute; z-index: 1; max-width: none;
+    left: calc(var(--R) * -0.2263); top: calc(var(--R) * -0.0396);
+    width: calc(var(--R) * 0.4526); height: calc(var(--R) * 0.0958);
+  }
+  html.js .panel {
+    display: block; z-index: 2; top: calc(var(--R) * 0.03);
+    transform-origin: 50% calc(var(--R) * -0.03);
+    transform-style: preserve-3d; transform: rotateX(0deg);
+  }
+  html.js .panel-przod, html.js .panel-tyl {
+    position: absolute; inset: 0;
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  }
+  html.js .panel-tyl { transform: rotateX(180deg); }
+  html.js .panel-przod { border-radius: 50%; }
+  html.js .rama-plaska .lustro { display: none; }
+
+  /* --- zdjecie: kontener O w rozmiarze koncowym, zdjecie P w srodku --- */
+  html.js .zdjecie {
+    position: absolute; z-index: 4; border-radius: 50%; overflow: hidden; isolation: isolate;
+    width: calc(var(--rF) * 2); height: calc(var(--rF) * 2);
+    left: calc(var(--cx) - var(--rF)); top: calc(var(--cyF) - var(--rF));
+    margin: 0; background: var(--lakier) var(--lustro-mini) center / cover no-repeat;   /* zanim dojdzie zdjecie: miniatura, nigdy pusta rama */
+    opacity: 0; visibility: hidden;
+    transform-origin: 50% 50%; transform: translate(0, 0) scale(1);
+  }
+  html.js .zdjecie-wew {
+    --sf: max(calc(var(--covW) / var(--Wp)), calc(var(--covH) / var(--Hp)));
+    --Pw: calc(var(--Wp) * var(--sf));
+    --Ph: calc(var(--Hp) * var(--sf));
+    inset: auto;
+    width: var(--Pw); height: var(--Ph);
+    left: clamp(calc(var(--X0) + var(--covW) - var(--Pw)), calc(var(--X0) + var(--covW) / 2 - var(--fx) * var(--Pw)), var(--X0));
+    top: clamp(calc(var(--Y0) + var(--covH) - var(--Ph)), calc(var(--Y0) + var(--covH) * var(--ay) - var(--fy) * var(--Ph)), var(--Y0));
+    transform-origin: calc(var(--cx0) * 100%) calc(var(--cy0) * 100%);
+    transform: translate(0, 0) scale(1);
+  }
+  html.js .zdjecie-img { object-fit: fill; }
+  html.js .lusterko-hi {
+    display: block; position: absolute; max-width: none;
+    left: calc(var(--kx0) * 100%); top: calc(var(--ky0) * 100%);
+    width: calc((var(--kx1) - var(--kx0)) * 100%); height: calc((var(--ky1) - var(--ky0)) * 100%);
+    opacity: 1;
+  }
+  /* obwodka kola zdjecia: tylko desktop (pelne kolo); na telefonie pas zaslania dol kola, wiec luku nie ma */
+  html.js .luk {
+    display: none; position: absolute; z-index: 5; pointer-events: none;
+    width: calc(var(--rF) * 2); height: calc(var(--rF) * 2);
+    left: calc(var(--cx) - var(--rF)); top: calc(var(--cyF) - var(--rF));
+    border-radius: 50%; border: 1.5px solid var(--akcent-mrok); opacity: 0;
+  }
+  /* cien pod winieta: gora zdjecia przyciemniona tak, by nazwa i linia byly czytelne na kazdym zdjeciu */
+  html.js .cien {
+    display: block; position: absolute; left: 0; right: 0; top: 0; z-index: 7; pointer-events: none;
+    height: calc(var(--sh) * 0.3); opacity: 0;
+    background: linear-gradient(to bottom, rgb(var(--tlo-ciemne-rgb) / 0.9) 0, rgb(var(--tlo-ciemne-rgb) / 0.84) 50%, rgb(var(--tlo-ciemne-rgb) / 0) 100%);
+  }
+
+  /* --- teksty --- */
+  html.js .teksty { display: block; position: absolute; inset: 0 0 auto 0; height: var(--sh); z-index: 8; pointer-events: none; }
+  html.js .teksty > * { pointer-events: auto; }
+  /* dol pierwszego ekranu jak linie okladki: wlosowa kreska na cala szerokosc, H1 i przycisk do lewej */
+  html.js .teksty > h1 {
+    position: absolute; left: 0; right: 0; margin: 0; padding: 13px var(--marg, 20px) 0; max-width: none;
+    bottom: calc(var(--dol, 24px) + var(--btn, 52px) + var(--odstep, 14px));
+    font-size: clamp(30px, 9.6vw, 38px); line-height: 1.1; text-align: left;
+  }
+  html.js .teksty > h1::before {
+    content: ""; position: absolute; left: var(--marg, 20px); right: var(--marg, 20px); top: 0; height: 1px;
+    background: rgb(var(--papier-rgb) / 0.4);
+  }
+  html.js .teksty > h1.h1--dlugi { font-size: clamp(26px, 8vw, 32px); }   /* dluzszy opis ma zostac w dwoch liniach */
+  @media (max-height: 759px) { html.js .hero { --zjazd: 14px; } }
+  html.js .przewin {
+    display: inline-flex; position: absolute; left: var(--marg, 20px); bottom: var(--dol, 24px);
+    min-height: var(--btn, 52px); white-space: nowrap;
+  }
+  html.js .przewin svg { animation: podskok 1.4s ease-in-out 1.6s 4; }   /* start razem z uchyleniem wieczka (main.js, 1,6 s) */
+  html.js .scena { -webkit-tap-highlight-color: transparent; }
+  html.js .panel-przod, html.js .podstawa { cursor: pointer; }          /* stukniecie w puderniczke przewija (main.js) */
+  html.js .cta-statyczny { display: none; }
+  /* --- OKLADKA w scenie: winieta na gorze (na cieniu), pas ze spisem na dole, zdjecie miedzy nimi --- */
+  html.js .teksty > .koniec {
+    display: block; position: absolute; inset: 0; margin: 0; padding: 0;
+    opacity: 0; visibility: hidden; pointer-events: none;
+  }
+  html.js .teksty > .koniec > * { pointer-events: auto; }
+  html.js .winieta-blok { position: absolute; left: 0; right: 0; top: 0; padding: 12px var(--marg, 20px) 0; }
+  html.js .pas {
+    /* telefon: pas w tym samym tle co hero (faktura + monogram), akcent zostaje w kresce i przycisku (wlasciciel 11-12: "inne tlo") */
+    background: var(--faktura), var(--tlo-ciemne); color: var(--papier);
+    border-top: 1px solid rgb(var(--papier-rgb) / 0.22);
+    position: absolute; left: 0; right: 0; bottom: 0;
+    min-height: calc(var(--sh) - var(--pas-top));
+    padding: 18px var(--marg, 20px) calc(20px + env(safe-area-inset-bottom, 0px)); justify-content: center;
+  }
+  html.js .hero .pas .przycisk { background: var(--przelamanie); color: var(--na-przelamaniu); }
+  html.js .pas .spis__poz { border-top-color: rgb(var(--papier-rgb) / 0.22); }
+  html.js .pas .spis__nr { color: var(--przelamanie); }
+  html.js .hero .pas .przycisk:hover { background: var(--akcent); color: var(--na-akcencie); }
+  /* pas siega az do dolu duzego ekranu (pod schowany pasek Safari), tresc zostaje w malym */
+  html.js .pas::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 100%; height: calc(var(--ekran-duzy) - var(--sh) + 2px);
+    background: inherit; pointer-events: none;
+  }
+
+  /* --- ZAMKNIETA, mniejsze ekrany --- */
+  @media (max-height: 699px) { html.js .hero { --dol: 20px; --btn: 48px; --odstep: 12px; --zjazd: 14px; } html.js .teksty > h1 { font-size: clamp(27px, 8.6vw, 32px); line-height: 34px; } html.js .teksty > h1.h1--dlugi { font-size: clamp(24px, 7.6vw, 28px); line-height: 31px; } }
+  @media (max-height: 619px) { html.js .hero { --dol: 16px; --btn: 46px; --odstep: 10px; --zjazd: 10px; } html.js .teksty > h1 { font-size: clamp(25px, 8vw, 30px); line-height: 32px; } html.js .teksty > h1.h1--dlugi { font-size: clamp(23px, 7.2vw, 26px); line-height: 29px; } html.js .przycisk { min-height: 46px; } }
+  /* niski telefon: spis ciasniej, zeby pas nie wchodzil na zdjecie */
+  @media (max-height: 700px) { html.js .spis__poz { min-height: 44px; padding: 10px 0 9px; } html.js .pas { gap: 14px; padding-top: 14px; } html.js .winieta-blok { padding-top: 8px; } }
+
+  /* --- FAZA: OTWARTA i KONCOWA (wspolna geometria otwartej puderniczki) --- */
+  html.js .scena[data-faza="otwarta"] .puder-dol, html.js .scena[data-faza="koncowa"] .puder-dol,
+  html.js .scena[data-faza="otwarta"] .puder-gora, html.js .scena[data-faza="koncowa"] .puder-gora {
+    transform: translate3d(0, var(--dyo), 0) scale(var(--k));
+  }
+  html.js .scena[data-faza="otwarta"] .panel, html.js .scena[data-faza="koncowa"] .panel { transform: rotateX(180deg); opacity: 0; }
+  html.js .scena[data-faza="otwarta"] .zawias-z, html.js .scena[data-faza="koncowa"] .zawias-z { opacity: 0; }
+  html.js .scena[data-faza="otwarta"] .zawias-o { opacity: 1; }
+  html.js .scena[data-faza="otwarta"] .rama-plaska { opacity: 1; visibility: visible; }
+  html.js .scena[data-faza="otwarta"] .zdjecie {
+    opacity: 1; visibility: visible;
+    transform: translate(calc(var(--R0) * -0.004), calc(var(--ocyo) - var(--cyF))) scale(var(--k0, 0.4));
+  }
+  html.js .scena[data-faza="otwarta"] .zdjecie-wew {
+    transform: translate(var(--pdx, 0px), var(--pdy, 0px)) scale(var(--sp, 3));
+  }
+  html.js .scena[data-faza="otwarta"] .przyciemnienie { opacity: 0.35; }
+  html.js .scena[data-faza="otwarta"] .pasek,
+  html.js .scena[data-faza="otwarta"] .teksty > h1,
+  html.js .scena[data-faza="otwarta"] .przewin { opacity: 0; visibility: hidden; }
+  html.js .scena[data-faza="otwarta"] .kolo, html.js .scena[data-faza="koncowa"] .kolo {
+    opacity: 0; visibility: hidden;
+    transform: translate(calc(var(--ox) * var(--R)), calc(var(--oy) * var(--R)));
+  }
+
+  /* --- FAZA: KONCOWA --- */
+  html.js .scena[data-faza="koncowa"] .puder-dol { transform: translate3d(0, calc(var(--dyo) + var(--sh)), 0) scale(var(--k)); }
+  html.js .scena[data-faza="koncowa"] .rama-plaska,
+  html.js .scena[data-faza="koncowa"] .zawias-o { opacity: 0; visibility: hidden; }
+  html.js .scena[data-faza="koncowa"] .zdjecie { opacity: 1; visibility: visible; }
+  html.js .scena[data-faza="koncowa"] .lusterko-hi { opacity: 0; }
+  html.js .scena[data-faza="koncowa"] .luk { opacity: 1; }
+  html.js .scena[data-faza="koncowa"] .poswiata { opacity: 0; }
+  html.js .scena[data-faza="koncowa"] .pasek,
+  html.js .scena[data-faza="koncowa"] .teksty > h1,
+  html.js .scena[data-faza="koncowa"] .przewin { opacity: 0; visibility: hidden; }
+  html.js .scena[data-faza="koncowa"] .teksty > .koniec { opacity: 1; visibility: visible; }
+  html.js .scena[data-faza="koncowa"] .cien { opacity: 1; }
+}
+
+@keyframes podskok { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+/* ---------- 8. Scena na tablecie (768-1099): jak telefon, R = min(30vw, 19svh), kola w calosci ---------- */
+@media (prefers-reduced-motion: no-preference) and (min-height: 501px) and (min-width: 768px) {
+  html.js .hero { --R: min(30vw, calc(var(--vh1) * 19)); --T: calc(var(--vh1) * 165); }
+  html.js .kolo {
+    left: calc(var(--cx) + var(--dx) * var(--R) - var(--r) * var(--R));
+  }
+  html.js .hero { --marg: max(32px, calc((100vw - 640px) / 2)); }
+  html.js .teksty > h1 { font-size: clamp(34px, 5vw, 44px); line-height: 1.1; }
+  html.js .winieta-blok { --winieta-fs: clamp(40px, calc((100vw - 2 * var(--marg)) / var(--winieta-em, 7) * 0.97), 120px); }
+}
+
+/* ---------- 9. Scena na desktopie (>= 1100): dwie kolumny, scena po prawej ---------- */
+@media (prefers-reduced-motion: no-preference) and (min-height: 501px) and (min-width: 1100px) {
+  html.js .hero {
+    --R: min(calc(var(--vh1) * 25), 18vw);
+    --k: 1.08;
+    --cx: 65vw;
+    --cy: calc(var(--sh) / 2);
+    --slowo-fs: min(calc(40vw / var(--slowo-em)), calc((var(--cy) - var(--R) - var(--z0) - 12px) / 1.13));
+    --slowo-x: 35vw;
+    --T: calc(var(--vh1) * 160);
+    --rF: calc(var(--sh) * 0.44);
+    --cyF: calc(var(--sh) / 2);
+    --covW: calc(var(--rF) * 2);
+    --covH: calc(var(--rF) * 2);
+    --X0: 0px;
+    --Y0: 0px;
+    --ay: 0.45;
+  }
+  html.js .poswiata { background: radial-gradient(52% 62% at 65% 50%, var(--tlo-jasne), var(--tlo) 72%, var(--tlo-ciemne)); }
+  /* slowo nad puderniczka, jak na telefonie: przechodzi przez gorne kola (srodek 65vw = --cx) */
+  html.js .slowo { left: var(--slowo-x); right: auto; width: 60vw; text-align: center; }
+  html.js .teksty > h1.h1--dlugi { font-size: clamp(38px, 3.4vw, 48px); }
+  html.js .kolo { --dy: var(--dyw); --r: var(--rw); --dx: var(--dxw); }
+  html.js .teksty {
+    left: 5.5vw; right: auto; width: 31vw; top: 0; bottom: 0;
+    display: grid; align-content: center; justify-items: start; row-gap: 28px;
+  }
+  html.js .teksty > h1 {
+    position: static; grid-column: 1; grid-row: 1; padding: 0; text-align: left; max-width: none;
+    font-size: clamp(44px, 3.9vw, 56px); line-height: 1.07;
+  }
+  html.js .teksty > h1 { position: relative; bottom: auto; padding-top: 20px; }
+  html.js .teksty > h1::before { left: 0; right: 0; }
+  html.js .przewin { position: static; grid-row: 2; grid-column: 1; transform: none; justify-self: start; align-self: start; }
+  html.js .luk { display: block; }
+  /* okladka: panel w kolorze przelamania po lewej (0-34vw) z winieta, linia, spisem i CTA; zdjecie w kole po prawej */
+  html.js .teksty > .koniec {
+    left: -5.5vw; right: auto; width: 34vw;
+    display: flex; flex-direction: column; justify-content: center; gap: 28px;
+    padding: calc(var(--z0) + 8px) 3.5vw 40px 5.5vw;
+    background: var(--ziarno-c) 0 0 / 96px 96px repeat, var(--ziarno-j) 48px 48px / 96px 96px repeat, var(--przelamanie);
+    color: var(--na-przelamaniu);
+  }
+  html.js .winieta-blok { position: static; width: auto; margin: 0; padding: 0; --winieta-fs: clamp(40px, calc(25vw / var(--winieta-em, 7) * 0.97), 112px); }
+  html.js .winieta { color: var(--na-przelamaniu); }
+  html.js .koniec .wydanie { color: var(--na-przelamaniu); border-top-color: rgb(var(--na-przelamaniu-rgb) / 0.55); }
+  html.js .pas { position: static; width: auto; margin: 0; min-height: 0; padding: 0; background: none; justify-content: flex-start; }
+  html.js .spis { grid-template-columns: minmax(0, 1fr); grid-auto-flow: row; grid-template-rows: none; }
+  html.js .spis__tyt { font-size: 16px; }
+  /* na desktopie H1 zostaje do otwarcia lusterka (jest miejsce); na koncu ustepuje okladce, pasek tez */
+  html.js .scena[data-faza="otwarta"] .pasek, html.js .scena[data-faza="otwarta"] .teksty > h1 { opacity: 1; visibility: visible; }
+  html.js .scena[data-faza="koncowa"] .cien { opacity: 0; }
+}
+
+/* ---------- 10. Srodek sceny: otwarte lusterko nie zostaje bez tekstu (wlasciciel: "pusto, nie wiadomo, czy przewijac") ----------
+   .chwila = zdanie u gory (tam, gdzie byl pasek), .dalej = pigulka z podpowiedzia na dole; wchodza w 20-28%, znikaja w 50-56%
+   (main.js, tylko telefon i tablet; na desktopie H1 zostaje przez cala scene). Bez JS i przy ograniczonym ruchu ich nie ma. */
+.chwila, .dalej { display: none; }
+@media (prefers-reduced-motion: no-preference) and (min-height: 501px) {
+  html.js .chwila, html.js .dalej { display: block; position: absolute; z-index: 8; margin: 0; pointer-events: none; opacity: 0; visibility: hidden; }
+  html.js .chwila {
+    left: 12px; right: 12px; top: calc(var(--z0) * 0.3 + env(safe-area-inset-top));
+    font: 400 min(5.9vw, 26px) / 1.1 var(--font-display); color: var(--papier); text-align: center; white-space: nowrap;
+    text-shadow: 0 1px 18px rgb(var(--tlo-ciemne-rgb) / 0.55);
+  }
+  html.js .dalej {
+    left: 0; right: 0; width: max-content; margin-inline: auto; top: calc(var(--sh) - 52px - env(safe-area-inset-bottom));
+    align-items: center; gap: 7px; padding: 9px 15px 9px 17px; border-radius: 999px;
+    background: rgb(var(--tlo-ciemne-rgb) / 0.82); color: var(--papier);
+    font: 500 13px / 1 var(--font-tekst); letter-spacing: 0.01em; white-space: nowrap;
+    box-shadow: 0 0 0 1px rgb(var(--papier-rgb) / 0.18);
+  }
+  html.js .dalej { display: inline-flex; }
+  html.js .dalej svg { animation: podskok 1.6s ease-in-out infinite; }
+}
+@media (prefers-reduced-motion: no-preference) and (min-height: 501px) and (min-width: 1100px) {
+  html.js .chwila {
+    left: 5.5vw; right: auto; top: auto; bottom: calc(var(--sh) * 0.2); width: 31vw; text-align: left; white-space: normal;
+    font-size: clamp(22px, 1.9vw, 28px); line-height: 1.2; color: var(--szept-jasny); text-shadow: none;
+  }
+  html.js .dalej { left: 5.5vw; right: auto; margin: 0; top: auto; bottom: calc(var(--sh) * 0.2 - 58px); }
+  html.js .pasek__menu { display: flex; gap: clamp(18px, 2.2vw, 34px); margin-left: auto; margin-right: clamp(18px, 2.4vw, 36px); }
+  html.js .pasek__menu a { font: 500 14px/20px var(--font-tekst); color: inherit; text-decoration: none; opacity: 0.82; min-height: 44px; display: inline-flex; align-items: center; }
+  html.js .pasek__menu a:hover, html.js .pasek__menu a:focus-visible { opacity: 1; text-decoration: underline; text-underline-offset: 6px; }
+  html.js .pasek__cta { margin-left: 0; }
+}
+.pasek__menu { display: none; }
+.fakty-hero { display: none; }
+@media (prefers-reduced-motion: no-preference) and (min-height: 501px) and (min-width: 1100px) {
+  html.js .fakty-hero {
+    display: grid; grid-row: 2; grid-column: 1; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr);
+    width: 100%; margin: 0; padding: 0; list-style: none;
+    border-top: 1px solid rgb(var(--papier-rgb) / 0.22); border-bottom: 1px solid rgb(var(--papier-rgb) / 0.22);
+  }
+  html.js .fakty-hero li { display: flex; flex-direction: column; gap: 4px; padding: 16px 14px 15px 0; min-width: 0; }
+  html.js .fakty-hero li + li { padding-left: 18px; border-left: 1px solid rgb(var(--papier-rgb) / 0.22); }
+  html.js .fakty-hero__w { font: 400 clamp(26px, 2.3vw, 34px) / 1 var(--font-display); color: var(--papier); font-variant-numeric: lining-nums; }
+  html.js .fakty-hero__o { font: 500 13px / 18px var(--font-tekst); color: var(--szept-jasny); overflow-wrap: anywhere; }
+  html.js .przewin { grid-row: 3; }
+}

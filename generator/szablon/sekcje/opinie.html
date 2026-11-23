@@ -1,0 +1,19 @@
+<!-- ============ OPINIE: duze fragmenty (ozdobne, aria-hidden) i pelne cytaty w dwoch paskach jadacych w przeciwne strony.
+     Bez JS i przy ograniczonym ruchu: fragmenty stoja, cytaty to zwykla lista. Na telefonie cytaty zostaja lista ============ -->
+<section class="opinie {{PW}} faktura" id="opinie" data-nav="{{NAV}}" data-sekcja="opinie" data-scene="opinie"{{PRZ_ATR}} aria-labelledby="opinie-h2">
+{{PRZEJSCIE}}
+{{PRZERYWNIK}}
+ <header class="opinie-glowa sek-glowa">
+  {{NR}}
+  <h2 id="opinie-h2" class="h2-duzy" data-split>{{H2}}</h2>
+  <p class="opinie-zr">Z&nbsp;wiadomości od klientek</p>
+ </header>
+{{FRAGMENTY}}
+ <div class="opinie-cytaty" data-anim="petla-cytaty" data-kierunek="1">
+  <div class="pasek-tor">
+   <div class="pasek-grupa">
+{{OPINIE}}
+   </div>
+  </div>
+ </div>
+</section>

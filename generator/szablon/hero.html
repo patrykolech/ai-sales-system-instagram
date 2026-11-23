@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{{TYTUL}}</title>
+<meta name="description" content="{{OPIS}}">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="{{THEME}}">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="{{TYTUL}}">
+<meta property="og:description" content="{{OPIS}}">
+<meta property="og:image" content="{{IMG}}lusterko/zdjecie.webp">
+<!-- Podglad: bez canonical (noindex). Po zakupie dodaj canonical i usun noindex. -->
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preload" href="{{WSP}}assets/fonts/bodoni-moda-italic-pl.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" href="{{IMG_WIECZKO}}" type="image/webp" fetchpriority="high">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="{{WSP}}assets/css/hero.css">
+<style>{{TOKENY}}</style>
+<script type="application/ld+json">{{JSONLD}}</script>
+</head>
+<body>
+<a class="pomin" href="#tresc">Przejdź do treści</a>
+<main id="tresc">
+
+<!-- ============ HERO: scena "Moment w lustrze" (haki: lista w assets/css/hero.css) ============ -->
+<section class="hero" id="hero" data-nav="dark" data-scene="lustro" aria-labelledby="hero-h1">
+ <div class="przebieg" data-anim="przebieg">
+  <div class="scena" data-anim="scena">
+   <div class="poswiata" data-anim="poswiata" aria-hidden="true"></div>
+   <div class="przyciemnienie" data-anim="przyciemnienie" aria-hidden="true"></div>
+
+   <nav class="pasek" data-anim="pasek" aria-label="Profil i rezerwacja">
+    <a class="pasek__profil" href="{{IG_URL}}"><img src="{{IMG}}avatar.webp" width="32" height="32" alt=""><span>@{{NICK}}</span></a>
+    <a class="pasek__cta" href="{{CTA_URL}}">Umów wizytę</a>
+   </nav>
+
+   <!-- slowo przez zdjecia: pelna kopia pod kolami, kontur nad nimi; tresc czyta czytnik z H1 -->
+   <div class="slowo" data-anim="slowo" aria-hidden="true">{{SLOWO}}</div>
+
+   <!-- male lusterka: ozdobne, statyczne; --lw/--dyw/--rw wysoki, --ln/--dyn/--rn niski (sekcja 6 briefu) -->
+   <div class="kola" data-anim="kola" aria-hidden="true">
+{{KOLA}}
+   </div>
+
+   <div class="slowo slowo--kontur" data-slowo="{{SLOWO}}" data-anim="slowo-kontur" aria-hidden="true">{{SLOWO}}</div>
+
+   <div class="puder">
+    <div class="puder-dol" data-anim="puder-dol">
+     <div class="podstawa" data-anim="podstawa"><img class="warstwa" data-src="{{IMG}}warstwy/podstawa.webp" width="1000" height="1000" alt="" decoding="async" fetchpriority="low"><noscript><img class="warstwa" src="{{IMG}}warstwy/podstawa.webp" width="1000" height="1000" alt="" decoding="async" fetchpriority="low"></noscript></div>
+    </div>
+    <div class="puder-gora" data-anim="puder-gora">
+     <img class="zawias-z" data-anim="zawias-z" src="{{IMG}}warstwy/zawias-zamkniety.webp" width="208" height="44" alt="">
+     <div class="panel" data-anim="panel">
+      <div class="panel-przod" data-anim="wieczko"><img class="warstwa" src="{{IMG_WIECZKO}}" width="1000" height="1000" alt="{{NAZWA}}" decoding="sync" fetchpriority="high"></div>
+      <div class="panel-tyl rama-tyl" data-anim="panel-tyl" aria-hidden="true">
+       <div class="lustro" data-anim="lustro-tyl"><img data-src="{{IMG}}lusterko/lusterko.webp" width="{{KADR_PX}}" height="{{KADR_PX}}" alt="" decoding="async" fetchpriority="low"></div>
+       <img class="warstwa" data-src="{{IMG}}warstwy/rama-lusterka.webp" width="1000" height="1000" alt="" decoding="async" fetchpriority="low">
+      </div>
+     </div>
+     <div class="rama-plaska" data-anim="rama-plaska">
+      <div class="lustro"><img data-src="{{IMG}}lusterko/lusterko.webp" width="{{KADR_PX}}" height="{{KADR_PX}}" alt="Kadr oka ze zdjęcia z profilu @{{NICK}}" decoding="async" fetchpriority="low"><noscript><img src="{{IMG}}lusterko/lusterko.webp" width="{{KADR_PX}}" height="{{KADR_PX}}" alt="Kadr oka ze zdjęcia z profilu @{{NICK}}" decoding="async" fetchpriority="low"></noscript></div>
+      <img class="warstwa" data-src="{{IMG}}warstwy/rama-lusterka.webp" width="1000" height="1000" alt="" decoding="async" fetchpriority="low"><noscript><img class="warstwa" src="{{IMG}}warstwy/rama-lusterka.webp" width="1000" height="1000" alt="" decoding="async" fetchpriority="low"></noscript>
+     </div>
+     <img class="zawias-o" data-anim="zawias-o" data-src="{{IMG}}warstwy/zawias.webp" width="174" height="37" alt="" fetchpriority="low"><noscript><img class="zawias-o" data-anim="zawias-o" src="{{IMG}}warstwy/zawias.webp" width="174" height="37" alt="" fetchpriority="low"></noscript>
+    </div>
+   </div>
+
+   <div class="zdjecie" data-anim="zdjecie">
+    <div class="zdjecie-wew" data-anim="zdjecie-wew">
+     <img class="zdjecie-img" data-src="{{IMG}}lusterko/zdjecie.webp" width="{{WP}}" height="{{HP}}" alt="Zdjęcie pracy z profilu @{{NICK}}" decoding="async"><noscript><img class="zdjecie-img" src="{{IMG}}lusterko/zdjecie.webp" width="{{WP}}" height="{{HP}}" alt="Zdjęcie pracy z profilu @{{NICK}}" decoding="async"></noscript>
+     <img class="lusterko-hi" data-anim="lusterko-hi" data-src="{{IMG}}lusterko/lusterko.webp" width="{{KADR_PX}}" height="{{KADR_PX}}" alt="" aria-hidden="true" decoding="async">
+    </div>
+   </div>
+   <div class="luk" data-anim="luk" aria-hidden="true"></div>
+   <div class="cien" data-anim="cien" aria-hidden="true"></div>
+
+   <!-- srodek sceny (otwarte lusterko): zdanie u gory i podpowiedz na dole, zeby ekran nie byl pusty; tylko przy ruchu, telefon i tablet -->
+   <p class="chwila" data-anim="chwila" aria-hidden="true">Ta chwila, gdy patrzysz w&nbsp;lustro</p>
+   <p class="dalej" data-anim="dalej" aria-hidden="true"><span>Przewiń dalej</span><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v11M3.5 9l4.5 4.5L12.5 9"/></svg></p>
+
+   <div class="teksty">
+    <h1 id="hero-h1" class="{{H1_KLASA}}" data-anim="h1">{{H1}}</h1>
+    <a class="przycisk przewin" data-anim="przewin" href="#efekt">Przewiń, żeby otworzyć<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5v11M3.5 9l4.5 4.5L12.5 9"/></svg></a>
+    <a class="przycisk cta-statyczny" data-anim="cta-statyczny" href="{{CTA_URL}}">{{CTA_ETYKIETA}}</a>
+    <!-- koniec = okladka: winieta z nazwa, linia z usluga i miastem, spis tresci ({{SPIS}} wypelnia zbuduj_strone.py) i CTA -->
+    <div class="koniec" data-anim="koniec">
+     <div class="winieta-blok" data-anim="winieta-blok">
+      <p class="winieta {{WINIETA_KLASA}}" data-anim="winieta"><span class="winieta__w" data-anim="winieta-w">{{NAZWA}}</span></p>
+      <p class="wydanie" data-anim="wydanie"><span>{{USLUGA}}</span><span>{{MIASTO}}</span></p>
+     </div>
+     <div class="pas" data-anim="pas">
+      {{SPIS}}
+      <a class="przycisk cta-koniec" data-anim="cta-koniec" href="{{CTA_URL}}">{{CTA_ETYKIETA}}</a>
+     </div>
+    </div>
+   </div>
+  </div>
+  <span class="kotwica" id="efekt" data-anim="kotwica" aria-hidden="true"></span>
+ </div>
+</section>
+
+<!-- ============ USLUGI I CENY: poczatek sekcji (reszta strony po zatwierdzeniu hero) ============ -->
+<section class="uslugi" id="uslugi" data-nav="light" data-anim="uslugi" aria-labelledby="uslugi-h2">
+ <div class="uslugi-wew">
+  <h2 id="uslugi-h2">{{USLUGI_H2}}</h2>
+{{USLUGI}}
+ </div>
+</section>
+
+</main>
+<footer class="stopka" data-nav="dark">
+ <p>Podgląd przygotowany z&nbsp;publicznych materiałów profilu @{{NICK}}. Prośbę o&nbsp;usunięcie wyślij na&nbsp;<mark class="todo">[DO UZUPEŁNIENIA]</mark>.</p>
+</footer>
+
+<!-- ruch: biblioteki lokalne, przypięte (gsap 3.15.0, ScrollTrigger 3.15.0, lenis 1.3.26); strona jest kompletna bez nich -->
+<script src="{{WSP}}assets/js/vendor/gsap.min.js" defer></script>
+<script src="{{WSP}}assets/js/vendor/ScrollTrigger.min.js" defer></script>
+<script>if(matchMedia('(hover:hover) and (pointer:fine) and (min-width:1100px)').matches&&!/Instagram/i.test(navigator.userAgent))document.write('<script src="{{WSP}}assets/js/vendor/lenis.min.js" defer><\/script>')</script>
+<script src="{{WSP}}assets/js/hero.js" defer></script>
+<script src="{{WSP}}assets/js/main.js" defer></script>
+<!-- bezpiecznik: skrypty nie zadziałały (zablokowane, błąd sieci) → zdejmij html.js, zostaje stan statyczny -->
+<!-- paczka 2 (otwarta puderniczka, zdjecie) po pierwszym malowaniu albo przy pierwszym ruchu; font slowa bez skoku -->
+<script>(function(){var d=document,z=0;function p(){if(z)return;z=1;d.querySelectorAll('img[data-src]').forEach(function(i){i.src=i.getAttribute('data-src')})}function w(){p();d.documentElement.classList.add('p2')}if(/[?&]faza=/.test(location.search))d.documentElement.classList.add('p2');addEventListener('load',p);['scroll','touchstart','wheel','keydown','pointerdown'].forEach(function(t){addEventListener(t,w,{once:true,passive:true})});function f(){d.documentElement.classList.add('fonty')}if(d.fonts&&d.fonts.load)d.fonts.load('500 100px "Bodoni Moda Kursywa"').then(f,f);else f()})()</script>
+<script>addEventListener('load',function(){var r=document.documentElement;if(!r.hasAttribute('data-animator')&&!/[?&]faza=/.test(location.search))r.classList.remove('js')})</script>
+</body>
+</html>

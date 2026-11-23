@@ -1,0 +1,27 @@
+<!-- ============ KONTAKT: puderniczka zamyka sie (jedyny powrot motywu). Haki: data-anim="kp", "kp-panel"; data-dok="ukryj" chowa staly przycisk ============ -->
+<section class="kontakt {{PW}} faktura" id="kontakt" data-nav="{{NAV}}" data-sekcja="kontakt" data-scene="kontakt"{{PRZ_ATR}} aria-labelledby="kontakt-h2">
+{{PRZEJSCIE}}
+ <div class="kontakt-wew">
+  <div class="kontakt-tekst">
+   <header class="sek-glowa">
+    {{NR}}
+    <h2 id="kontakt-h2" data-split>{{H2}}</h2>
+   </header>
+{{TEKST}}
+   <p class="kontakt-cta" data-dok="ukryj"><a class="przycisk przycisk--duzy" href="{{CTA_URL}}">{{CTA_ETYKIETA}}</a></p>
+{{FAKTY}}
+  </div>
+  <div class="kp" data-anim="kp" aria-hidden="true">
+   <div class="kp-os">
+    <div class="kp-dol"><div class="kp-baza"><img class="kp-warstwa" src="{{IMG}}warstwy/podstawa.webp" width="1000" height="1000" alt="" loading="lazy" decoding="async"></div></div>
+    <div class="kp-gora">
+     <img class="kp-zawias" src="{{IMG}}warstwy/zawias-zamkniety.webp" width="208" height="44" alt="" loading="lazy">
+     <div class="kp-panel" data-anim="kp-panel">
+      <div class="kp-przod"><img class="kp-warstwa" src="{{IMG_WIECZKO}}" width="1000" height="1000" alt="" loading="lazy" decoding="async"></div>
+      <div class="kp-tyl"><div class="kp-lustro"><img src="{{IMG}}lusterko/lusterko.webp" width="{{KADR_PX}}" height="{{KADR_PX}}" alt="" loading="lazy" decoding="async"></div><img class="kp-warstwa" src="{{IMG}}warstwy/rama-lusterka.webp" width="1000" height="1000" alt="" loading="lazy" decoding="async"></div>
+     </div>
+    </div>
+   </div>
+  </div>
+ </div>
+</section>
