@@ -1,7 +1,7 @@
 # Instagram AI: autonomiczny system sprzedaży stron www dla branży beauty
 
 **Projekt komercyjny. Kod jest prywatny, tutaj opisuję architekturę, orkiestrację i wyniki.**
-Python · asyncio · Playwright · browser-use · MCP · system wieloagentowy · LLM (Claude, GPT, Gemini) · modele vision · SQLite (WAL) · Telegram Bot API · GSAP · VPS
+Python · asyncio · Playwright · browser-use · MCP · system wieloagentowy · LLM (Claude, GPT, Gemini) · modele vision · SQLite (WAL) · Clay · Telegram Bot API · GSAP · VPS
 
 Jeden system robi całą sprzedaż: znajduje salony beauty na Instagramie, pisze do nich z wielu kont, czyta odpowiedzi, **dla każdego, kto odpisze, generuje animowaną stronę jego salonu** i wysyła ofertę z linkiem do tej strony. Typowe odpowiedzi obsługuje sam, a ja wchodzę do rozmowy jednym przyciskiem w Telegramie, gdy klient jest blisko zakupu.
 
@@ -20,7 +20,8 @@ Jeden system robi całą sprzedaż: znajduje salony beauty na Instagramie, pisze
 
 ```mermaid
 flowchart TD
-    A["<b>1. Leady</b><br/>Google dorks, scraping IG, Booksy"] --> B["<b>2. Kwalifikacja LLM</b><br/>czy to salon, branża, miasto"]
+    A["<b>1. Leady</b><br/>Google dorks, scraping IG, Booksy"] --> CL["<b>Clay</b><br/>tabela salonów, wzbogacanie"]
+    CL --> B["<b>2. Kwalifikacja</b><br/>kolumna AI: salon, branża, miasto"]
     B --> C["<b>3. Przydział do konta</b><br/>limity wg wieku i kondycji konta"]
     C --> D["<b>4. Pierwsza wiadomość</b><br/>seria w oknie aktywności konta"]
     D --> E{"Odpowiedź?"}
@@ -41,7 +42,7 @@ flowchart TD
     classDef ai fill:#dcfce7,stroke:#22c55e,color:#0f172a
     classDef sprzedaz fill:#fef3c7,stroke:#f59e0b,color:#0f172a
     classDef boczne fill:#f1f5f9,stroke:#94a3b8,color:#0f172a
-    class A,B dane
+    class A,B,CL dane
     class C,D konta
     class G,H,I,K ai
     class L,M sprzedaz
@@ -54,8 +55,17 @@ Kolory: niebieski to dane, fioletowy to konta i wysyłka, zielony to agenci AI, 
 
 - **Google dorks** (np. `site:instagram.com "rzęsy" "Kraków"`) zwracają profile firm, których nie widać w wyszukiwarce Instagrama.
 - **Scraping profili Instagram** po miastach i dzielnicach oraz **salonów z Booksy**: nick, nazwa, bio, liczba obserwujących, link w bio, kategoria.
-- **Kwalifikacja przez LLM**: czy to działalność (a nie konto prywatne), jaka usługa (rzęsy, brwi, PMU, paznokcie, twarz), czy salon ma już stronę. Odrzucone profile nie trafiają do kolejki.
+- **Kwalifikacja** odbywa się w Clay (opis niżej): odrzucone profile nie trafiają do kolejki wysyłki.
 - **Deduplikacja między kontami i źródłami**, żeby żaden salon nie dostał wiadomości dwa razy z różnych kont.
+
+### Clay: tabela salonów
+
+Leady ze wszystkich źródeł trafiają do jednej tabeli w Clay (import przez webhook):
+
+- **Wzbogacanie**: czy salon ma już stronę www, czy jest na Booksy, telefon i adres z wizytówki Google, miasto i dzielnica.
+- **Kolumna AI** rozpoznaje z bio i nazwy, czy to działalność, a nie konto prywatne, i jaka usługa (rzęsy, brwi, PMU, paznokcie, twarz). Salony bez strony dostają wyższy priorytet, bo dla nich oferta jest najbardziej trafiona.
+- **Deduplikacja po nicku** w tabeli, żeby salon z kilku źródeł był jednym wierszem.
+- **Statusy z systemu wracają do Clay webhookiem** przy każdej zmianie etapu: pierwsza wiadomość, odpowiedź, link do wygenerowanej strony, oferta i cena, odpowiedź po ofercie, klientka. Lejek per miasto, branża i konto widać w jednym miejscu.
 
 ### 2. Zarządzanie kontami
 
@@ -154,7 +164,8 @@ Odpisało po ofercie: 25 (10 odmów, 10 neutralnych, 3 zainteresowane, 2 bardzo,
 | Agenci | orkiestrator + 5 ról, asynchroniczna szyna zdarzeń (SQLite WAL) |
 | Modele | Claude (Sonnet, Haiku), GPT, Gemini przez bramki API z łańcuchami zapasowymi; modele vision do zdjęć i zrzutów |
 | Generator stron | Python, szablony HTML, GSAP + ScrollTrigger + Lenis, QA w Playwright |
-| Dane | SQLite (leady, rozmowy, zadania, flagi), eksport do arkuszy |
+| Dane o leadach | Clay: tabela salonów, wzbogacanie, kolumny AI, statusy lejka z webhooka |
+| Dane operacyjne | SQLite (rozmowy, zadania, flagi agentów) |
 | Sterowanie i alerty | Telegram Bot API: podsumowania, przyciski decyzji, alerty, zmiana ustawień |
 | Infrastruktura | Windows Server na VPS, SSH, git, kopie zapasowe |
 
@@ -162,7 +173,6 @@ Odpisało po ofercie: 25 (10 odmów, 10 neutralnych, 3 zainteresowane, 2 bardzo,
 
 Rzeczy, których jeszcze nie ma, a które są następnym krokiem:
 
-- **Clay jako warstwa danych o leadach.** Tabela salonów w Clay zamiast własnej tabeli: wzbogacanie (czy salon ma stronę, Booksy, liczba obserwujących, miasto, usługi, telefon z wizytówki Google), kolumna AI (Claygent) oceniająca dopasowanie i scoring, a gotowe leady wysyłane do kolejki wysyłki przez HTTP API. Statusy rozmów (odpowiedź, oferta, klientka) wracałyby do Clay webhookiem, więc całą historię leada widać w jednym miejscu.
 - **Pamięć długoterminowa agentów.** Stan każdej rozmowy jako graf (LangGraph z checkpointerem) zamiast pojedynczych zadań, oraz baza wektorowa rozmów (np. pgvector) do wyszukiwania podobnych przypadków zamiast dopasowania po słowach.
 - **Ewaluacje i wersjonowanie promptów.** Zestaw testowy prawdziwych odpowiedzi z oceną (np. LangSmith albo własne evale), żeby każda zmiana promptu albo modelu była mierzona przed wdrożeniem.
 - **Wynik zdrowia konta.** Jedna liczba dla każdego konta liczona z historii blokad, odsetka odpowiedzi i wieku konta, która sama ustawia dzienne limity.
