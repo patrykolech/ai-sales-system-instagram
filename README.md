@@ -1,5 +1,7 @@
 # Instagram AI: autonomiczny system sprzedaży stron www dla branży beauty
 
+> **TL;DR (EN):** Autonomous multi-agent sales system for beauty salons on Instagram: lead sourcing (Google dorks, scraping, Booksy) and enrichment in Clay, outreach from up to 15 accounts, an AI-generated animated website for every reply, offers and follow-ups handled autonomously with a human in the loop via Telegram. Result: 52% reply rate, ~30 clients in 2 months. The website generator code is in [`/generator`](generator/).
+
 **Projekt komercyjny. Kod jest prywatny, tutaj opisuję architekturę, orkiestrację i wyniki.**
 Python · asyncio · Playwright · browser-use · MCP · system wieloagentowy · LLM (Claude, GPT, Gemini) · modele vision · SQLite (WAL) · Clay · Telegram Bot API · GSAP · VPS
 
@@ -91,7 +93,7 @@ Leady ze wszystkich źródeł trafiają do jednej tabeli w Clay (import przez we
 
 - **Każdy, kto odpisze na pierwszą wiadomość**, uruchamia budowę strony. Gdy strona jest gotowa, kolejną wiadomością jest oferta z linkiem do niej.
 - Agenci generatora: weryfikator danych (nazwa, miasto, usługa), dobór zdjęć modelem vision, odtworzenie albo wygenerowanie logo, art director (paleta z 11 rodzin), copywriter, QA na zrzutach z telefonu. Strona jest publikowana na domenie z SSL.
-- Generator działa też samodzielnie, z panelu: [beauty-site-generator](https://github.com/patrykolech/beauty-site-generator), przykład: [examplewebsite.pl/zaczarowanerzesypoznan](https://examplewebsite.pl/zaczarowanerzesypoznan/).
+- Generator działa też samodzielnie, z panelu. Jego kod jest w folderze [`generator/`](generator/), przykład: [examplewebsite.pl/zaczarowanerzesypoznan](https://examplewebsite.pl/zaczarowanerzesypoznan/).
 
 ### 6. Oferta
 

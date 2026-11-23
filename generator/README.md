@@ -1,5 +1,7 @@
 # Generator animowanych stron www z profilu Instagram (Agentic AI)
 
+> Ta część należy do [systemu sprzedaży na Instagramie](../README.md): tutaj jest kod generatora stron, opis całego systemu jest w głównym README.
+
 **Jedna komenda: nick salonu beauty z Instagrama → gotowa, animowana strona firmy.**
 Python · agenci LLM (Claude, GPT, Gemini) · modele wizyjne · Playwright · OpenCV · GSAP + ScrollTrigger + Lenis
 
@@ -39,7 +41,7 @@ flowchart LR
 
 Całość uruchamia [`generuj.py`](generuj.py), a agentów obsługuje [`agenci.py`](agenci.py).
 
-**Dwa tryby pracy:** generator działa automatycznie wewnątrz [systemu sprzedaży na Instagramie](https://github.com/patrykolech/instagram-ai-outreach) (strona powstaje, gdy salon odpisze na pierwszą wiadomość) albo samodzielnie, z panelu: wpisuje się nick salonu i dostaje gotową stronę, np. na potrzeby rozmowy z klientem spoza kampanii.
+**Dwa tryby pracy:** generator działa automatycznie wewnątrz [systemu sprzedaży na Instagramie](https://github.com/patrykolech/ai-sales-system-instagram) (strona powstaje, gdy salon odpisze na pierwszą wiadomość) albo samodzielnie, z panelu: wpisuje się nick salonu i dostaje gotową stronę, np. na potrzeby rozmowy z klientem spoza kampanii.
 
 ## Najważniejsze decyzje
 
